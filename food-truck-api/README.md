@@ -1,0 +1,66 @@
+# Food Truck Management System API
+
+RESTful API for managing food truck menu items and time slots.
+
+## Setup
+
+1. Install dependencies:
+```bash
+npm install
+```
+
+2. Create `.env` file from `.env.example` and configure your PostgreSQL connection.
+
+3. Run the SQL migration:
+```bash
+psql -U postgres -d food_truck_db -f sql/001_create_tables.sql
+```
+
+4. Start the server:
+```bash
+npm run dev
+```
+
+## API Endpoints
+
+### Menu Items
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/menu-items` | Get all menu items |
+| GET | `/api/menu-items/:id` | Get single menu item |
+| POST | `/api/menu-items` | Create menu item |
+| PUT | `/api/menu-items/:id` | Update menu item |
+| DELETE | `/api/menu-items/:id` | Delete menu item |
+
+**Query Parameters:** `food_truck_id`, `category`, `available`
+
+### Time Slots
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/time-slots` | Get all time slots |
+| GET | `/api/time-slots/available` | Get available slots |
+| GET | `/api/time-slots/:id` | Get single time slot |
+| POST | `/api/time-slots` | Create time slot |
+| PUT | `/api/time-slots/:id` | Update time slot |
+| PATCH | `/api/time-slots/:id/increment-orders` | Increment order count |
+| DELETE | `/api/time-slots/:id` | Delete time slot |
+
+**Query Parameters:** `food_truck_id`, `slot_date`, `active`
+
+## Example Requests
+
+### Create Menu Item
+```bash
+curl -X POST http://localhost:3000/api/menu-items \
+  -H "Content-Type: application/json" \
+  -d '{"food_truck_id": 1, "name": "Tacos", "price": 8.99, "category": "Main"}'
+```
+
+### Create Time Slot
+```bash
+curl -X POST http://localhost:3000/api/time-slots \
+  -H "Content-Type: application/json" \
+  -d '{"food_truck_id": 1, "slot_date": "2024-12-10", "start_time": "12:00", "end_time": "12:30", "max_orders": 15}'
+```
