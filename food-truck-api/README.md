@@ -20,10 +20,11 @@ JWT_SECRET=your-secret-key-change-in-production
 PORT=3000
 ```
 
-3. Run the SQL migrations in order:
+3. Run the SQL migrations:
 ```bash
 psql -U postgres -d food_truck_db -f sql/000_create_user_tables.sql
 psql -U postgres -d food_truck_db -f sql/001_create_tables.sql
+psql -U postgres -d food_truck_db -f sql/002_analytics_tables.sql
 ```
 
 4. Start the server:
@@ -121,6 +122,41 @@ npm run dev
 | DELETE | `/api/time-slots/:id` | Delete time slot |
 
 **Query Parameters:** `food_truck_id`, `slot_date`, `active`
+
+### Cart
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/cart/:userId` | Get user's cart with totals |
+| POST | `/api/cart` | Add item to cart |
+| PUT | `/api/cart/:cartItemId` | Update item quantity |
+| DELETE | `/api/cart/:cartItemId` | Remove item from cart |
+| DELETE | `/api/cart/user/:userId` | Clear entire cart |
+
+### Analytics
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/analytics` | Get analytics with filters |
+| GET | `/api/analytics/summary/:foodTruckId` | Get summary for food truck |
+| GET | `/api/analytics/:id` | Get single analytics record |
+| POST | `/api/analytics` | Create/upsert analytics |
+| PUT | `/api/analytics/:id` | Update analytics record |
+| DELETE | `/api/analytics/:id` | Delete analytics record |
+
+**Query Parameters:** `food_truck_id`, `start_date`, `end_date`, `days`
+
+### Analytics Time Slots
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/analytics/:analyticsId/time-slots` | Get time slot analytics |
+| GET | `/api/analytics/time-slots/trends/:foodTruckId` | Get time slot trends |
+| POST | `/api/analytics/:analyticsId/time-slots` | Create time slot analytics |
+| PUT | `/api/analytics/time-slots/:id` | Update time slot analytics |
+| DELETE | `/api/analytics/time-slots/:id` | Delete time slot analytics |
+
+**Query Parameters:** `day_of_week`, `days`
 
 ## Example Requests
 
