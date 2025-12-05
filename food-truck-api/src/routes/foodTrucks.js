@@ -5,24 +5,35 @@ const pool = require('../config/database');
 // GET /api/food-trucks - Get all food trucks (with filters)
 router.get('/', async (req, res) => {
     try {
-        const { cuisine_type, active, search } = req.query;
-        let query = 'SELECT * FROM food_trucks WHERE 1=1';
+        const { owner_id, cuisine_type, active, search } = req.query;
+        let query = `
+            SELECT ft.*, o.user_id as owner_user_id, 
+                   u.first_name || ' ' || u.last_name as owner_name
+            FROM food_trucks ft
+            JOIN owners o ON ft.owner_id = o.owner_id
+            JOIN users u ON o.user_id = u.user_id
+            WHERE 1=1
+        `;
         const params = [];
 
+        if (owner_id) {
+            params.push(owner_id);
+            query += ` AND ft.owner_id = $${params.length}`;
+        }
         if (cuisine_type) {
             params.push(cuisine_type);
-            query += ` AND cuisine_type = $${params.length}`;
+            query += ` AND ft.cuisine_type = $${params.length}`;
         }
         if (active !== undefined) {
             params.push(active === 'true');
-            query += ` AND is_active = $${params.length}`;
+            query += ` AND ft.is_active = $${params.length}`;
         }
         if (search) {
             params.push(`%${search}%`);
-            query += ` AND (name ILIKE $${params.length} OR description ILIKE $${params.length})`;
+            query += ` AND (ft.name ILIKE $${params.length} OR ft.description ILIKE $${params.length})`;
         }
 
-        query += ' ORDER BY name';
+        query += ' ORDER BY ft.name';
         const result = await pool.query(query, params);
         res.json({ success: true, data: result.rows });
     } catch (error) {
@@ -110,18 +121,18 @@ router.get('/:id/time-slots', async (req, res) => {
 // POST /api/food-trucks - Create new food truck
 router.post('/', async (req, res) => {
     try {
-        const { name, description, cuisine_type, phone, email, license_number, is_active, image_url } = req.body;
+        const { owner_id, name, description, cuisine_type, license_number, is_active } = req.body;
 
-        if (!name) {
-            return res.status(400).json({ success: false, error: 'name is required' });
+        if (!owner_id || !name) {
+            return res.status(400).json({ success: false, error: 'owner_id and name are required' });
         }
 
         const result = await pool.query(
             `INSERT INTO food_trucks 
-             (name, description, cuisine_type, phone, email, license_number, is_active, image_url)
-             VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+             (owner_id, name, description, cuisine_type, license_number, is_active)
+             VALUES ($1, $2, $3, $4, $5, $6)
              RETURNING *`,
-            [name, description, cuisine_type, phone, email, license_number, is_active ?? true, image_url]
+            [owner_id, name, description, cuisine_type, license_number, is_active ?? true]
         );
 
         res.status(201).json({ success: true, data: result.rows[0] });
@@ -129,6 +140,9 @@ router.post('/', async (req, res) => {
         console.error('Error creating food truck:', error);
         if (error.code === '23505') {
             return res.status(400).json({ success: false, error: 'License number already exists' });
+        }
+        if (error.code === '23503') {
+            return res.status(400).json({ success: false, error: 'Invalid owner_id' });
         }
         res.status(500).json({ success: false, error: 'Internal server error' });
     }

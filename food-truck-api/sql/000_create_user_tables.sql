@@ -133,3 +133,35 @@ CREATE INDEX idx_workers_user_id
 -- Index for food truck lookups by owner
 CREATE INDEX idx_food_trucks_owner_id 
     ON food_trucks(owner_id);
+
+-- ============================================
+-- Table: operating_hours
+-- Stores weekly operating hours for each food truck
+-- day_of_week: 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+-- ============================================
+CREATE TABLE operating_hours (
+    operating_hour_id   SERIAL PRIMARY KEY,
+    food_truck_id       INTEGER NOT NULL,
+    day_of_week         INTEGER NOT NULL CHECK (day_of_week >= 0 AND day_of_week <= 6),
+    open_time           TIME NOT NULL,
+    close_time          TIME NOT NULL,
+    is_active           BOOLEAN DEFAULT TRUE,
+    created_at          TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at          TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    
+    CONSTRAINT fk_operating_hours_food_truck
+        FOREIGN KEY (food_truck_id)
+        REFERENCES food_trucks(food_truck_id)
+        ON DELETE CASCADE,
+    
+    CONSTRAINT chk_operating_time_order
+        CHECK (close_time > open_time)
+);
+
+-- Index for querying operating hours by food truck
+CREATE INDEX idx_operating_hours_food_truck_id 
+    ON operating_hours(food_truck_id);
+
+-- Index for querying operating hours by day of week
+CREATE INDEX idx_operating_hours_day_of_week 
+    ON operating_hours(day_of_week);

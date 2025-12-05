@@ -3,44 +3,62 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 
-const menuItemsRouter = require('./routes/menuItems');
-const timeSlotsRouter = require('./routes/timeSlots');
+// Route imports
 const usersRouter = require('./routes/users');
 const customersRouter = require('./routes/customers');
 const ownersRouter = require('./routes/owners');
 const workersRouter = require('./routes/workers');
+const foodTrucksRouter = require('./routes/foodTrucks');
+const operatingHoursRouter = require('./routes/operatingHours');
+const menuItemsRouter = require('./routes/menuItems');
+const timeSlotsRouter = require('./routes/timeSlots');
+const ordersRouter = require('./routes/orders');
 const favoritesRouter = require('./routes/favorites');
 const notificationsRouter = require('./routes/notifications');
 const cartRouter = require('./routes/cart');
 const analyticsRouter = require('./routes/analytics');
-const ordersRouter = require('./routes/orders');
-const foodTrucksRouter = require('./routes/foodTrucks');
-
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware
+// Security & parsing middleware
 app.use(helmet());
 app.use(cors());
 app.use(express.json());
 
-// Request logging
+// Request logging middleware
 app.use((req, res, next) => {
     console.log(`${new Date().toISOString()} ${req.method} ${req.path}`);
     next();
 });
 
-// Routes
-app.use('/api/food-trucks', foodTrucksRouter);
+// API Routes
+// Users & Roles (Ahmed Hatem)
+app.use('/api/users', usersRouter);
 app.use('/api/customers', customersRouter);
+app.use('/api/owners', ownersRouter);
+app.use('/api/workers', workersRouter);
+
+// Food Trucks (Yuseff)
+app.use('/api/food-trucks', foodTrucksRouter);
+app.use('/api/operating-hours', operatingHoursRouter);
+
+// Menu & Time Slots (Yassin)
 app.use('/api/menu-items', menuItemsRouter);
 app.use('/api/time-slots', timeSlotsRouter);
+
+// Orders (Salah)
+app.use('/api/orders', ordersRouter);
+
+// Favorites & Notifications (Tawfik)
 app.use('/api/favorites', favoritesRouter);
 app.use('/api/notifications', notificationsRouter);
+
+// Cart
 app.use('/api/cart', cartRouter);
+
+// Analytics (Khaled)
 app.use('/api/analytics', analyticsRouter);
-app.use('/api/orders', ordersRouter);
 
 // Health check
 app.get('/health', (req, res) => {

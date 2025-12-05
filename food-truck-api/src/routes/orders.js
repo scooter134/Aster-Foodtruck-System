@@ -11,12 +11,13 @@ router.get('/', async (req, res) => {
         
         let query = `
             SELECT o.*, 
-                   c.first_name || ' ' || c.last_name AS customer_name,
-                   c.email AS customer_email,
+                   u.first_name || ' ' || u.last_name AS customer_name,
+                   u.email AS customer_email,
                    ft.name AS food_truck_name,
                    ts.slot_date, ts.start_time, ts.end_time
             FROM orders o
             JOIN customers c ON o.customer_id = c.customer_id
+            JOIN users u ON c.user_id = u.user_id
             JOIN food_trucks ft ON o.food_truck_id = ft.food_truck_id
             JOIN time_slots ts ON o.time_slot_id = ts.time_slot_id
             WHERE 1=1
@@ -79,6 +80,84 @@ router.get('/', async (req, res) => {
 });
 
 // ============================================
+// GET /api/orders/stats/summary - Get order statistics
+// Note: This MUST be before /:id to prevent route conflicts
+// ============================================
+router.get('/stats/summary', async (req, res) => {
+    try {
+        const { food_truck_id, from_date, to_date } = req.query;
+
+        let whereClause = 'WHERE 1=1';
+        const params = [];
+
+        if (food_truck_id) {
+            params.push(food_truck_id);
+            whereClause += ` AND food_truck_id = $${params.length}`;
+        }
+        if (from_date) {
+            params.push(from_date);
+            whereClause += ` AND created_at >= $${params.length}`;
+        }
+        if (to_date) {
+            params.push(to_date);
+            whereClause += ` AND created_at <= $${params.length}`;
+        }
+
+        const statsResult = await pool.query(`
+            SELECT 
+                COUNT(*) as total_orders,
+                COUNT(*) FILTER (WHERE order_status = 'pending') as pending_orders,
+                COUNT(*) FILTER (WHERE order_status = 'confirmed') as confirmed_orders,
+                COUNT(*) FILTER (WHERE order_status = 'preparing') as preparing_orders,
+                COUNT(*) FILTER (WHERE order_status = 'ready') as ready_orders,
+                COUNT(*) FILTER (WHERE order_status = 'picked_up') as completed_orders,
+                COUNT(*) FILTER (WHERE order_status = 'cancelled') as cancelled_orders,
+                SUM(total_amount) FILTER (WHERE order_status = 'picked_up') as total_revenue,
+                AVG(total_amount) FILTER (WHERE order_status = 'picked_up') as average_order_value
+            FROM orders
+            ${whereClause}
+        `, params);
+
+        res.json({ success: true, data: statsResult.rows[0] });
+    } catch (error) {
+        console.error('Error fetching order stats:', error);
+        res.status(500).json({ success: false, error: 'Internal server error' });
+    }
+});
+
+// ============================================
+// GET /api/orders/number/:orderNumber - Get order by order number
+// Note: This MUST be before /:id to prevent route conflicts
+// ============================================
+router.get('/number/:orderNumber', async (req, res) => {
+    try {
+        const { orderNumber } = req.params;
+        
+        const result = await pool.query(`
+            SELECT o.*, 
+                   u.first_name || ' ' || u.last_name AS customer_name,
+                   ft.name AS food_truck_name,
+                   ts.slot_date, ts.start_time, ts.end_time
+            FROM orders o
+            JOIN customers c ON o.customer_id = c.customer_id
+            JOIN users u ON c.user_id = u.user_id
+            JOIN food_trucks ft ON o.food_truck_id = ft.food_truck_id
+            JOIN time_slots ts ON o.time_slot_id = ts.time_slot_id
+            WHERE o.order_number = $1
+        `, [orderNumber]);
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({ success: false, error: 'Order not found' });
+        }
+
+        res.json({ success: true, data: result.rows[0] });
+    } catch (error) {
+        console.error('Error fetching order by number:', error);
+        res.status(500).json({ success: false, error: 'Internal server error' });
+    }
+});
+
+// ============================================
 // GET /api/orders/:id - Get single order with items
 // ============================================
 router.get('/:id', async (req, res) => {
@@ -88,13 +167,14 @@ router.get('/:id', async (req, res) => {
         // Get order details
         const orderResult = await pool.query(`
             SELECT o.*, 
-                   c.first_name || ' ' || c.last_name AS customer_name,
-                   c.email AS customer_email,
-                   c.phone AS customer_phone,
+                   u.first_name || ' ' || u.last_name AS customer_name,
+                   u.email AS customer_email,
+                   u.phone AS customer_phone,
                    ft.name AS food_truck_name,
                    ts.slot_date, ts.start_time, ts.end_time
             FROM orders o
             JOIN customers c ON o.customer_id = c.customer_id
+            JOIN users u ON c.user_id = u.user_id
             JOIN food_trucks ft ON o.food_truck_id = ft.food_truck_id
             JOIN time_slots ts ON o.time_slot_id = ts.time_slot_id
             WHERE o.order_id = $1
@@ -136,36 +216,6 @@ router.get('/:id', async (req, res) => {
         });
     } catch (error) {
         console.error('Error fetching order:', error);
-        res.status(500).json({ success: false, error: 'Internal server error' });
-    }
-});
-
-// ============================================
-// GET /api/orders/number/:orderNumber - Get order by order number
-// ============================================
-router.get('/number/:orderNumber', async (req, res) => {
-    try {
-        const { orderNumber } = req.params;
-        
-        const result = await pool.query(`
-            SELECT o.*, 
-                   c.first_name || ' ' || c.last_name AS customer_name,
-                   ft.name AS food_truck_name,
-                   ts.slot_date, ts.start_time, ts.end_time
-            FROM orders o
-            JOIN customers c ON o.customer_id = c.customer_id
-            JOIN food_trucks ft ON o.food_truck_id = ft.food_truck_id
-            JOIN time_slots ts ON o.time_slot_id = ts.time_slot_id
-            WHERE o.order_number = $1
-        `, [orderNumber]);
-
-        if (result.rows.length === 0) {
-            return res.status(404).json({ success: false, error: 'Order not found' });
-        }
-
-        res.json({ success: true, data: result.rows[0] });
-    } catch (error) {
-        console.error('Error fetching order by number:', error);
         res.status(500).json({ success: false, error: 'Internal server error' });
     }
 });
@@ -285,10 +335,11 @@ router.post('/', async (req, res) => {
         // Fetch complete order with items
         const completeOrder = await pool.query(`
             SELECT o.*, 
-                   c.first_name || ' ' || c.last_name AS customer_name,
+                   u.first_name || ' ' || u.last_name AS customer_name,
                    ft.name AS food_truck_name
             FROM orders o
             JOIN customers c ON o.customer_id = c.customer_id
+            JOIN users u ON c.user_id = u.user_id
             JOIN food_trucks ft ON o.food_truck_id = ft.food_truck_id
             WHERE o.order_id = $1
         `, [order.order_id]);
@@ -521,51 +572,6 @@ router.delete('/:id', async (req, res) => {
         res.json({ success: true, message: 'Order cancelled', data: result.rows[0] });
     } catch (error) {
         console.error('Error cancelling order:', error);
-        res.status(500).json({ success: false, error: 'Internal server error' });
-    }
-});
-
-// ============================================
-// GET /api/orders/stats/summary - Get order statistics
-// ============================================
-router.get('/stats/summary', async (req, res) => {
-    try {
-        const { food_truck_id, from_date, to_date } = req.query;
-
-        let whereClause = 'WHERE 1=1';
-        const params = [];
-
-        if (food_truck_id) {
-            params.push(food_truck_id);
-            whereClause += ` AND food_truck_id = $${params.length}`;
-        }
-        if (from_date) {
-            params.push(from_date);
-            whereClause += ` AND created_at >= $${params.length}`;
-        }
-        if (to_date) {
-            params.push(to_date);
-            whereClause += ` AND created_at <= $${params.length}`;
-        }
-
-        const statsResult = await pool.query(`
-            SELECT 
-                COUNT(*) as total_orders,
-                COUNT(*) FILTER (WHERE order_status = 'pending') as pending_orders,
-                COUNT(*) FILTER (WHERE order_status = 'confirmed') as confirmed_orders,
-                COUNT(*) FILTER (WHERE order_status = 'preparing') as preparing_orders,
-                COUNT(*) FILTER (WHERE order_status = 'ready') as ready_orders,
-                COUNT(*) FILTER (WHERE order_status = 'picked_up') as completed_orders,
-                COUNT(*) FILTER (WHERE order_status = 'cancelled') as cancelled_orders,
-                SUM(total_amount) FILTER (WHERE order_status = 'picked_up') as total_revenue,
-                AVG(total_amount) FILTER (WHERE order_status = 'picked_up') as average_order_value
-            FROM orders
-            ${whereClause}
-        `, params);
-
-        res.json({ success: true, data: statsResult.rows[0] });
-    } catch (error) {
-        console.error('Error fetching order stats:', error);
         res.status(500).json({ success: false, error: 'Internal server error' });
     }
 });

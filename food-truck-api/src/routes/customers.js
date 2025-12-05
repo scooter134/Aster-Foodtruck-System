@@ -8,22 +8,25 @@ router.get('/', async (req, res) => {
         const { active, search, limit = 50, offset = 0 } = req.query;
         
         let query = `
-            SELECT customer_id, first_name, last_name, email, phone, 
-                   is_verified, is_active, created_at, updated_at 
-            FROM customers WHERE 1=1
+            SELECT c.customer_id, c.user_id, c.default_address, c.loyalty_points,
+                   u.email, u.first_name, u.last_name, u.phone, u.is_active,
+                   c.created_at, c.updated_at
+            FROM customers c
+            JOIN users u ON c.user_id = u.user_id
+            WHERE 1=1
         `;
         const params = [];
 
         if (active !== undefined) {
             params.push(active === 'true');
-            query += ` AND is_active = $${params.length}`;
+            query += ` AND u.is_active = $${params.length}`;
         }
         if (search) {
             params.push(`%${search}%`);
-            query += ` AND (first_name ILIKE $${params.length} OR last_name ILIKE $${params.length} OR email ILIKE $${params.length})`;
+            query += ` AND (u.first_name ILIKE $${params.length} OR u.last_name ILIKE $${params.length} OR u.email ILIKE $${params.length})`;
         }
 
-        query += ` ORDER BY created_at DESC LIMIT $${params.length + 1} OFFSET $${params.length + 2}`;
+        query += ` ORDER BY c.created_at DESC LIMIT $${params.length + 1} OFFSET $${params.length + 2}`;
         params.push(limit, offset);
 
         const result = await pool.query(query, params);
@@ -39,9 +42,12 @@ router.get('/:id', async (req, res) => {
     try {
         const { id } = req.params;
         const result = await pool.query(
-            `SELECT customer_id, first_name, last_name, email, phone, 
-                    is_verified, is_active, created_at, updated_at 
-             FROM customers WHERE customer_id = $1`,
+            `SELECT c.customer_id, c.user_id, c.default_address, c.loyalty_points,
+                    u.email, u.first_name, u.last_name, u.phone, u.is_active,
+                    c.created_at, c.updated_at
+             FROM customers c
+             JOIN users u ON c.user_id = u.user_id
+             WHERE c.customer_id = $1`,
             [id]
         );
 
@@ -87,51 +93,44 @@ router.get('/:id/orders', async (req, res) => {
     }
 });
 
-// POST /api/customers - Create new customer (registration)
-router.post('/', async (req, res) => {
+// GET /api/customers/user/:userId - Get customer by user ID
+router.get('/user/:userId', async (req, res) => {
     try {
-        const { first_name, last_name, email, phone, password_hash } = req.body;
-
-        if (!first_name || !last_name || !email || !password_hash) {
-            return res.status(400).json({ 
-                success: false, 
-                error: 'first_name, last_name, email, and password_hash are required' 
-            });
-        }
-
+        const { userId } = req.params;
         const result = await pool.query(
-            `INSERT INTO customers 
-             (first_name, last_name, email, phone, password_hash)
-             VALUES ($1, $2, $3, $4, $5)
-             RETURNING customer_id, first_name, last_name, email, phone, is_verified, is_active, created_at`,
-            [first_name, last_name, email, phone, password_hash]
+            `SELECT c.customer_id, c.user_id, c.default_address, c.loyalty_points,
+                    u.email, u.first_name, u.last_name, u.phone, u.is_active,
+                    c.created_at, c.updated_at
+             FROM customers c
+             JOIN users u ON c.user_id = u.user_id
+             WHERE c.user_id = $1`,
+            [userId]
         );
 
-        res.status(201).json({ success: true, data: result.rows[0] });
-    } catch (error) {
-        console.error('Error creating customer:', error);
-        if (error.code === '23505') {
-            return res.status(400).json({ success: false, error: 'Email already exists' });
+        if (result.rows.length === 0) {
+            return res.status(404).json({ success: false, error: 'Customer not found' });
         }
+
+        res.json({ success: true, data: result.rows[0] });
+    } catch (error) {
+        console.error('Error fetching customer:', error);
         res.status(500).json({ success: false, error: 'Internal server error' });
     }
 });
 
-// PUT /api/customers/:id - Update customer
+// PUT /api/customers/:id - Update customer profile
 router.put('/:id', async (req, res) => {
     try {
         const { id } = req.params;
-        const { first_name, last_name, phone } = req.body;
+        const { default_address } = req.body;
 
         const result = await pool.query(
             `UPDATE customers 
-             SET first_name = COALESCE($1, first_name),
-                 last_name = COALESCE($2, last_name),
-                 phone = COALESCE($3, phone),
+             SET default_address = COALESCE($1, default_address),
                  updated_at = CURRENT_TIMESTAMP
-             WHERE customer_id = $4
-             RETURNING customer_id, first_name, last_name, email, phone, is_verified, is_active, updated_at`,
-            [first_name, last_name, phone, id]
+             WHERE customer_id = $2
+             RETURNING *`,
+            [default_address, id]
         );
 
         if (result.rows.length === 0) {
@@ -145,17 +144,23 @@ router.put('/:id', async (req, res) => {
     }
 });
 
-// PATCH /api/customers/:id/verify - Verify customer email
-router.patch('/:id/verify', async (req, res) => {
+// PATCH /api/customers/:id/add-points - Add loyalty points
+router.patch('/:id/add-points', async (req, res) => {
     try {
         const { id } = req.params;
+        const { points } = req.body;
+
+        if (!points || points <= 0) {
+            return res.status(400).json({ success: false, error: 'Valid points amount required' });
+        }
 
         const result = await pool.query(
             `UPDATE customers 
-             SET is_verified = true, updated_at = CURRENT_TIMESTAMP
-             WHERE customer_id = $1
-             RETURNING customer_id, first_name, last_name, email, is_verified`,
-            [id]
+             SET loyalty_points = loyalty_points + $1,
+                 updated_at = CURRENT_TIMESTAMP
+             WHERE customer_id = $2
+             RETURNING *`,
+            [points, id]
         );
 
         if (result.rows.length === 0) {
@@ -164,36 +169,52 @@ router.patch('/:id/verify', async (req, res) => {
 
         res.json({ success: true, data: result.rows[0] });
     } catch (error) {
-        console.error('Error verifying customer:', error);
+        console.error('Error adding points:', error);
         res.status(500).json({ success: false, error: 'Internal server error' });
     }
 });
 
-// PATCH /api/customers/:id/deactivate - Deactivate customer
-router.patch('/:id/deactivate', async (req, res) => {
+// PATCH /api/customers/:id/redeem-points - Redeem loyalty points
+router.patch('/:id/redeem-points', async (req, res) => {
     try {
         const { id } = req.params;
+        const { points } = req.body;
 
-        const result = await pool.query(
-            `UPDATE customers 
-             SET is_active = false, updated_at = CURRENT_TIMESTAMP
-             WHERE customer_id = $1
-             RETURNING customer_id, first_name, last_name, email, is_active`,
+        if (!points || points <= 0) {
+            return res.status(400).json({ success: false, error: 'Valid points amount required' });
+        }
+
+        // Check if customer has enough points
+        const customerCheck = await pool.query(
+            'SELECT loyalty_points FROM customers WHERE customer_id = $1',
             [id]
         );
 
-        if (result.rows.length === 0) {
+        if (customerCheck.rows.length === 0) {
             return res.status(404).json({ success: false, error: 'Customer not found' });
         }
 
+        if (customerCheck.rows[0].loyalty_points < points) {
+            return res.status(400).json({ success: false, error: 'Insufficient loyalty points' });
+        }
+
+        const result = await pool.query(
+            `UPDATE customers 
+             SET loyalty_points = loyalty_points - $1,
+                 updated_at = CURRENT_TIMESTAMP
+             WHERE customer_id = $2
+             RETURNING *`,
+            [points, id]
+        );
+
         res.json({ success: true, data: result.rows[0] });
     } catch (error) {
-        console.error('Error deactivating customer:', error);
+        console.error('Error redeeming points:', error);
         res.status(500).json({ success: false, error: 'Internal server error' });
     }
 });
 
-// DELETE /api/customers/:id - Delete customer (hard delete - use with caution)
+// DELETE /api/customers/:id - Delete customer (cascades to user)
 router.delete('/:id', async (req, res) => {
     try {
         const { id } = req.params;
@@ -207,20 +228,24 @@ router.delete('/:id', async (req, res) => {
         if (parseInt(orderCheck.rows[0].count) > 0) {
             return res.status(400).json({ 
                 success: false, 
-                error: 'Cannot delete customer with existing orders. Use deactivate instead.' 
+                error: 'Cannot delete customer with existing orders. Deactivate the user instead.' 
             });
         }
 
-        const result = await pool.query(
-            'DELETE FROM customers WHERE customer_id = $1 RETURNING customer_id, first_name, last_name, email',
+        // Get user_id before deleting
+        const customerResult = await pool.query(
+            'SELECT user_id FROM customers WHERE customer_id = $1',
             [id]
         );
 
-        if (result.rows.length === 0) {
+        if (customerResult.rows.length === 0) {
             return res.status(404).json({ success: false, error: 'Customer not found' });
         }
 
-        res.json({ success: true, message: 'Customer deleted', data: result.rows[0] });
+        // Delete from users (cascades to customers due to FK)
+        await pool.query('DELETE FROM users WHERE user_id = $1', [customerResult.rows[0].user_id]);
+
+        res.json({ success: true, message: 'Customer deleted' });
     } catch (error) {
         console.error('Error deleting customer:', error);
         res.status(500).json({ success: false, error: 'Internal server error' });
