@@ -1,1 +1,0 @@
-# Aster-Foodtruck-System
