@@ -5,6 +5,7 @@ const helmet = require('helmet');
 
 const menuItemsRouter = require('./routes/menuItems');
 const timeSlotsRouter = require('./routes/timeSlots');
+const cartRouter = require('./routes/cart');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -23,6 +24,7 @@ app.use((req, res, next) => {
 // Routes
 app.use('/api/menu-items', menuItemsRouter);
 app.use('/api/time-slots', timeSlotsRouter);
+app.use('/api/cart', cartRouter);
 
 // Health check
 app.get('/health', (req, res) => {

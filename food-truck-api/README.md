@@ -49,6 +49,16 @@ npm run dev
 
 **Query Parameters:** `food_truck_id`, `slot_date`, `active`
 
+### Cart
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/cart/:userId` | Get user's cart with totals |
+| POST | `/api/cart` | Add item to cart |
+| PUT | `/api/cart/:cartItemId` | Update item quantity |
+| DELETE | `/api/cart/:cartItemId` | Remove item from cart |
+| DELETE | `/api/cart/user/:userId` | Clear entire cart |
+
 ## Example Requests
 
 ### Create Menu Item
@@ -63,4 +73,16 @@ curl -X POST http://localhost:3000/api/menu-items \
 curl -X POST http://localhost:3000/api/time-slots \
   -H "Content-Type: application/json" \
   -d '{"food_truck_id": 1, "slot_date": "2024-12-10", "start_time": "12:00", "end_time": "12:30", "max_orders": 15}'
+```
+
+### Add Item to Cart
+```bash
+curl -X POST http://localhost:3000/api/cart \
+  -H "Content-Type: application/json" \
+  -d '{"user_id": 1, "menu_item_id": 1, "quantity": 2}'
+```
+
+### Get User's Cart
+```bash
+curl http://localhost:3000/api/cart/1
 ```
