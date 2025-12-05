@@ -5,13 +5,17 @@ const helmet = require('helmet');
 
 const menuItemsRouter = require('./routes/menuItems');
 const timeSlotsRouter = require('./routes/timeSlots');
+const usersRouter = require('./routes/users');
+const customersRouter = require('./routes/customers');
+const ownersRouter = require('./routes/owners');
+const workersRouter = require('./routes/workers');
 const favoritesRouter = require('./routes/favorites');
 const notificationsRouter = require('./routes/notifications');
 const cartRouter = require('./routes/cart');
 const analyticsRouter = require('./routes/analytics');
 const ordersRouter = require('./routes/orders');
 const foodTrucksRouter = require('./routes/foodTrucks');
-const customersRouter = require('./routes/customers');
+
 
 const app = express();
 const PORT = process.env.PORT || 3000;
