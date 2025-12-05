@@ -5,6 +5,11 @@ const helmet = require('helmet');
 
 const menuItemsRouter = require('./routes/menuItems');
 const timeSlotsRouter = require('./routes/timeSlots');
+const usersRouter = require('./routes/users');
+const customersRouter = require('./routes/customers');
+const ownersRouter = require('./routes/owners');
+const workersRouter = require('./routes/workers');
+const foodTrucksRouter = require('./routes/foodTrucks');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -21,6 +26,11 @@ app.use((req, res, next) => {
 });
 
 // Routes
+app.use('/api/users', usersRouter);
+app.use('/api/customers', customersRouter);
+app.use('/api/owners', ownersRouter);
+app.use('/api/workers', workersRouter);
+app.use('/api/food-trucks', foodTrucksRouter);
 app.use('/api/menu-items', menuItemsRouter);
 app.use('/api/time-slots', timeSlotsRouter);
 

@@ -1,5 +1,6 @@
 -- Food Truck Management System - Database Schema
 -- Tables: menu_items, time_slots
+-- Depends on: 000_create_user_tables.sql (users, customers, owners, food_trucks, workers)
 
 -- ============================================
 -- Table: menu_items
