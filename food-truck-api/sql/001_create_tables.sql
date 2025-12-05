@@ -71,4 +71,32 @@ CREATE INDEX idx_time_slots_slot_date
 CREATE INDEX idx_time_slots_food_truck_date 
     ON time_slots(food_truck_id, slot_date);
 
+-- ============================================
+-- Table: cart_items
+-- Stores menu items in each user's cart
+-- ============================================
+CREATE TABLE cart_items (
+    cart_item_id    SERIAL PRIMARY KEY,
+    user_id         INTEGER NOT NULL,
+    menu_item_id    INTEGER NOT NULL,
+    quantity        INTEGER NOT NULL DEFAULT 1 CHECK (quantity > 0),
+    added_at        TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    
+    CONSTRAINT fk_cart_user
+        FOREIGN KEY (user_id)
+        REFERENCES users(user_id)
+        ON DELETE CASCADE,
+    
+    CONSTRAINT fk_cart_menu_item
+        FOREIGN KEY (menu_item_id)
+        REFERENCES menu_items(menu_item_id)
+        ON DELETE CASCADE,
+    
+    -- Ensure each user can only have one entry per menu item
+    CONSTRAINT uq_user_menu_item
+        UNIQUE (user_id, menu_item_id)
+);
 
+-- Index for querying cart by user
+CREATE INDEX idx_cart_items_user_id 
+    ON cart_items(user_id);
