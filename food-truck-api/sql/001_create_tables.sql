@@ -72,6 +72,87 @@ CREATE INDEX idx_time_slots_food_truck_date
     ON time_slots(food_truck_id, slot_date);
 
 -- ============================================
+-- Table: favorites
+-- Stores customer favorites for food trucks and menu items
+-- ============================================
+CREATE TABLE favorites (
+    favorite_id     SERIAL PRIMARY KEY,
+    customer_id     INTEGER NOT NULL,
+    favorite_type   VARCHAR(50) NOT NULL,
+    food_truck_id   INTEGER,
+    menu_item_id    INTEGER,
+    created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_favorites_customer
+        FOREIGN KEY (customer_id)
+        REFERENCES customers(customer_id)
+        ON DELETE CASCADE,
+
+    CONSTRAINT fk_favorites_food_truck
+        FOREIGN KEY (food_truck_id)
+        REFERENCES food_trucks(food_truck_id)
+        ON DELETE CASCADE,
+
+    CONSTRAINT fk_favorites_menu_item
+        FOREIGN KEY (menu_item_id)
+        REFERENCES menu_items(menu_item_id)
+        ON DELETE CASCADE,
+
+    CONSTRAINT chk_favorite_type_valid
+        CHECK (favorite_type IN ('FOOD_TRUCK', 'MENU_ITEM')),
+
+    CONSTRAINT chk_favorites_target
+        CHECK (
+            (favorite_type = 'FOOD_TRUCK' AND food_truck_id IS NOT NULL AND menu_item_id IS NULL)
+            OR
+            (favorite_type = 'MENU_ITEM' AND menu_item_id IS NOT NULL AND food_truck_id IS NULL)
+        )
+);
+
+-- Index for querying favorites by customer
+CREATE INDEX idx_favorites_customer_id 
+    ON favorites(customer_id);
+
+-- ============================================
+-- Table: notifications
+-- Stores notifications sent to users/customers
+-- ============================================
+CREATE TABLE notifications (
+    notification_id SERIAL PRIMARY KEY,
+    user_id         INTEGER NOT NULL,
+    type            VARCHAR(50) NOT NULL,
+    title           VARCHAR(255) NOT NULL,
+    body            TEXT NOT NULL,
+    is_read         BOOLEAN DEFAULT FALSE,
+    sent_at         TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    read_at         TIMESTAMP,
+    created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    order_id        INTEGER,
+    food_truck_id   INTEGER,
+    menu_item_id    INTEGER,
+
+    CONSTRAINT fk_notifications_user
+        FOREIGN KEY (user_id)
+        REFERENCES users(user_id)
+        ON DELETE CASCADE,
+
+    CONSTRAINT fk_notifications_food_truck
+        FOREIGN KEY (food_truck_id)
+        REFERENCES food_trucks(food_truck_id)
+        ON DELETE SET NULL,
+
+    CONSTRAINT fk_notifications_menu_item
+        FOREIGN KEY (menu_item_id)
+        REFERENCES menu_items(menu_item_id)
+        ON DELETE SET NULL
+);
+
+-- Index for querying notifications by user
+CREATE INDEX idx_notifications_user_id 
+    ON notifications(user_id);
 -- Table: cart_items
 -- Stores menu items in each user's cart
 -- ============================================
