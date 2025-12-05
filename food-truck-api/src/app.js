@@ -9,7 +9,9 @@ const usersRouter = require('./routes/users');
 const customersRouter = require('./routes/customers');
 const ownersRouter = require('./routes/owners');
 const workersRouter = require('./routes/workers');
+const ordersRouter = require('./routes/orders');
 const foodTrucksRouter = require('./routes/foodTrucks');
+
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -26,13 +28,11 @@ app.use((req, res, next) => {
 });
 
 // Routes
-app.use('/api/users', usersRouter);
-app.use('/api/customers', customersRouter);
-app.use('/api/owners', ownersRouter);
-app.use('/api/workers', workersRouter);
 app.use('/api/food-trucks', foodTrucksRouter);
+app.use('/api/customers', customersRouter);
 app.use('/api/menu-items', menuItemsRouter);
 app.use('/api/time-slots', timeSlotsRouter);
+app.use('/api/orders', ordersRouter);
 
 // Health check
 app.get('/health', (req, res) => {

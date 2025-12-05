@@ -71,3 +71,5 @@ CREATE INDEX idx_time_slots_slot_date
 -- Composite index for efficient date + food truck lookups
 CREATE INDEX idx_time_slots_food_truck_date 
     ON time_slots(food_truck_id, slot_date);
+
+
