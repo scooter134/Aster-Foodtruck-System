@@ -1,0 +1,575 @@
+/* Food Truck Order Management - Custom Styles */
+:root {
+    --primary-color: #0d6efd;
+    --success-color: #198754;
+    --warning-color: #ffc107;
+    --danger-color: #dc3545;
+}
+
+body { background-color: #f8f9fa; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+.navbar-brand { font-weight: 600; font-size: 1.4rem; }
+.navbar-brand i { margin-right: 8px; }
+
+/* Stats Cards */
+.stats-card { transition: transform 0.2s ease, box-shadow 0.2s ease; cursor: pointer; }
+.stats-card:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(0,0,0,0.1) !important; }
+.stats-card h3 { font-weight: 700; color: #333; }
+
+/* Status Badges */
+.badge-pending { background-color: #ffc107; color: #212529; }
+.badge-confirmed { background-color: #17a2b8; color: #fff; }
+.badge-preparing { background-color: #fd7e14; color: #fff; }
+.badge-ready { background-color: #28a745; color: #fff; }
+.badge-picked_up, .badge-completed { background-color: #0d6efd; color: #fff; }
+.badge-cancelled { background-color: #dc3545; color: #fff; }
+.badge-refunded { background-color: #6c757d; color: #fff; }
+
+/* Payment Status */
+.payment-pending { background-color: #ffc107; color: #212529; }
+.payment-completed { background-color: #28a745; color: #fff; }
+.payment-failed { background-color: #dc3545; color: #fff; }
+.payment-refunded { background-color: #6c757d; color: #fff; }
+
+.status-badge { padding: 6px 12px; border-radius: 50px; font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; display: inline-block; }
+
+/* Nav Pills */
+#statusTabs .nav-link { color: #6c757d; border-radius: 50px; padding: 8px 16px; margin-right: 8px; transition: all 0.2s ease; }
+#statusTabs .nav-link:hover { background-color: #e9ecef; }
+#statusTabs .nav-link.active { background-color: var(--primary-color); color: #fff; }
+#statusTabs .nav-link i { margin-right: 4px; }
+
+/* Orders Table */
+#ordersTable { font-size: 0.95rem; }
+#ordersTable thead th { font-weight: 600; color: #495057; border-bottom: 2px solid #dee2e6; padding: 12px 16px; }
+#ordersTable tbody td { padding: 12px 16px; vertical-align: middle; }
+#ordersTable tbody tr { transition: background-color 0.15s ease; }
+#ordersTable tbody tr:hover { background-color: #f1f3f5; }
+
+.order-number { font-weight: 600; color: var(--primary-color); cursor: pointer; }
+.order-number:hover { text-decoration: underline; }
+.customer-name { font-weight: 500; }
+.customer-email { font-size: 0.85rem; color: #6c757d; }
+.order-total { font-weight: 600; color: #28a745; }
+.pickup-time { display: flex; flex-direction: column; }
+.pickup-date { font-weight: 500; }
+.pickup-slot { font-size: 0.85rem; color: #6c757d; }
+
+/* Time Slot Indicator */
+.time-slot-indicator { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
+.time-slot-soon { background-color: #dc3545; animation: pulse 1s infinite; }
+.time-slot-upcoming { background-color: #ffc107; }
+.time-slot-later { background-color: #28a745; }
+@keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+
+/* Action Buttons */
+.btn-action { padding: 4px 8px; font-size: 0.85rem; margin-right: 4px; }
+
+/* Analytics Section */
+.analytics-item { text-align: center; padding: 20px; border-radius: 8px; background-color: #f8f9fa; }
+.analytics-item h6 { color: #6c757d; margin-bottom: 8px; font-size: 0.9rem; }
+.analytics-item .h4 { color: var(--primary-color); font-weight: 700; }
+
+/* Modal */
+.modal-header { background-color: #f8f9fa; border-bottom: 1px solid #dee2e6; }
+.modal-title { font-weight: 600; }
+.modal-title i { margin-right: 8px; color: var(--primary-color); }
+
+/* Status Timeline */
+.status-timeline { position: relative; padding-left: 30px; }
+.status-timeline::before { content: ''; position: absolute; left: 10px; top: 0; bottom: 0; width: 2px; background-color: #dee2e6; }
+.timeline-item { position: relative; padding-bottom: 16px; }
+.timeline-item::before { content: ''; position: absolute; left: -24px; top: 4px; width: 10px; height: 10px; border-radius: 50%; background-color: var(--primary-color); border: 2px solid #fff; box-shadow: 0 0 0 2px var(--primary-color); }
+.timeline-item:last-child { padding-bottom: 0; }
+.timeline-status { font-weight: 600; text-transform: capitalize; }
+.timeline-time { font-size: 0.85rem; color: #6c757d; }
+.timeline-reason { font-size: 0.85rem; color: #495057; margin-top: 4px; }
+
+/* Allergy Notes */
+.allergy-note { background-color: #fff3cd; border-left: 4px solid #ffc107; padding: 10px 15px; margin-bottom: 10px; border-radius: 4px; }
+.allergy-note.severity-severe { background-color: #f8d7da; border-left-color: #dc3545; }
+.allergy-type { font-weight: 600; text-transform: uppercase; font-size: 0.85rem; }
+
+/* Pagination */
+.pagination .page-link { color: var(--primary-color); border: none; padding: 8px 14px; margin: 0 2px; border-radius: 6px; }
+.pagination .page-link:hover { background-color: #e9ecef; }
+.pagination .page-item.active .page-link { background-color: var(--primary-color); color: #fff; }
+.pagination .page-item.disabled .page-link { color: #adb5bd; }
+
+/* Empty State */
+.empty-state { text-align: center; padding: 60px 20px; }
+.empty-state i { font-size: 4rem; color: #dee2e6; margin-bottom: 20px; }
+.empty-state h5 { color: #6c757d; }
+.empty-state p { color: #adb5bd; }
+
+/* Toast */
+.toast { background-color: #fff; border: none; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+.toast-header { background-color: var(--primary-color); color: #fff; }
+.toast-header .btn-close { filter: brightness(0) invert(1); }
+
+/* ============================================
+   Dashboard Styles
+   ============================================ */
+
+/* Truck Info Card */
+.truck-info-card { border-left: 4px solid var(--primary-color); }
+.truck-logo { width: 80px; height: 80px; background-color: #e9ecef; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; color: var(--primary-color); }
+.truck-logo-img { width: 100%; height: 100%; object-fit: cover; border-radius: 12px; }
+.truck-status-container { text-align: center; }
+.truck-status-label { display: block; font-size: 0.75rem; color: #6c757d; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+.truck-status-badge { padding: 8px 16px; border-radius: 50px; font-weight: 600; font-size: 0.9rem; display: inline-block; }
+.truck-status-badge.status-active { background-color: #d4edda; color: #155724; }
+.truck-status-badge.status-inactive { background-color: #f8d7da; color: #721c24; }
+.truck-status-badge i { font-size: 0.6rem; margin-right: 4px; }
+
+/* Availability Toggle */
+.availability-switch { width: 60px; height: 30px; cursor: pointer; }
+.availability-switch:checked { background-color: var(--success-color); border-color: var(--success-color); }
+.availability-status { font-weight: 600; font-size: 1.1rem; }
+
+/* Dashboard Stats Cards */
+.stats-card .stats-icon { font-size: 2.5rem; opacity: 0.7; }
+.stats-card h3 { font-size: 2rem; }
+
+/* Quick Action Buttons */
+.quick-action-btn { text-align: left; padding: 15px 20px; font-size: 1rem; transition: all 0.2s ease; }
+.quick-action-btn:hover { transform: translateX(5px); }
+.quick-action-btn i { margin-right: 10px; font-size: 1.2rem; }
+
+/* Order Link */
+.order-link { color: var(--primary-color); font-weight: 600; text-decoration: none; }
+.order-link:hover { text-decoration: underline; }
+
+/* Empty State Small */
+.empty-state-sm { padding: 20px; }
+.empty-state-sm i { font-size: 2rem; color: #dee2e6; display: block; margin-bottom: 8px; }
+
+/* Active Orders Alert */
+#activeOrdersAlert .alert { border-left: 4px solid #ffc107; }
+
+/* ============================================
+   Menu Management Styles
+   ============================================ */
+.menu-item-card { transition: all 0.2s ease; }
+.menu-item-card:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(0,0,0,0.1) !important; }
+.menu-item-card.unavailable { opacity: 0.6; }
+.menu-item-card .card-title { font-size: 1rem; }
+
+/* ============================================
+   Time Slots Styles
+   ============================================ */
+.time-slot-card { transition: all 0.2s ease; }
+.time-slot-card:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(0,0,0,0.1) !important; }
+.time-slot-card.inactive { opacity: 0.6; border-color: #dee2e6; }
+.time-slot-card h5 { font-size: 1.1rem; font-weight: 600; }
+
+/* ============================================
+   Customer Menu Styles
+   ============================================ */
+
+/* Truck Header */
+.truck-header { background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); }
+.truck-logo-lg { width: 100px; height: 100px; background-color: #e9ecef; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 3rem; color: var(--primary-color); overflow: hidden; }
+.truck-logo-lg img { width: 100%; height: 100%; object-fit: cover; }
+
+/* Category Pills */
+.category-pills { display: flex; flex-wrap: wrap; gap: 8px; }
+.category-btn { border-radius: 50px; padding: 8px 16px; font-size: 0.9rem; transition: all 0.2s ease; }
+.category-btn i { margin-right: 4px; }
+.category-btn:hover { transform: translateY(-2px); }
+
+/* Customer Menu Cards */
+.customer-menu-card { border: none; border-radius: 16px; overflow: hidden; box-shadow: 0 2px 12px rgba(0,0,0,0.08); transition: all 0.3s ease; }
+.customer-menu-card:hover { transform: translateY(-5px); box-shadow: 0 12px 30px rgba(0,0,0,0.12); }
+.customer-menu-card.unavailable { opacity: 0.7; }
+.customer-menu-card .card-body { padding: 16px; }
+.customer-menu-card .card-title { font-size: 1.1rem; font-weight: 600; }
+.customer-menu-card .card-text { display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 40px; }
+
+/* Card Image Container */
+.card-img-container { position: relative; height: 180px; overflow: hidden; background-color: #f8f9fa; }
+.card-img-container img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s ease; }
+.customer-menu-card:hover .card-img-container img { transform: scale(1.05); }
+.card-img-placeholder { height: 100%; display: flex; align-items: center; justify-content: center; font-size: 4rem; color: #dee2e6; }
+
+/* Favorite Badge */
+.favorite-badge { position: absolute; top: 12px; right: 12px; background: rgba(255,255,255,0.95); padding: 6px 10px; border-radius: 50px; font-size: 0.85rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+.favorite-badge i { color: #dc3545; }
+
+/* Unavailable Overlay */
+.unavailable-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.7); color: #fff; padding: 8px 20px; border-radius: 50px; font-weight: 600; text-transform: uppercase; font-size: 0.85rem; }
+
+/* Availability Badge */
+.availability-badge { padding: 4px 10px; border-radius: 50px; font-size: 0.75rem; font-weight: 600; }
+.bg-success-subtle { background-color: rgba(25, 135, 84, 0.1); }
+.bg-danger-subtle { background-color: rgba(220, 53, 69, 0.1); }
+
+/* Quick View Modal */
+.quick-view-image { height: 300px; background-color: #f8f9fa; border-radius: 12px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.quick-view-image i { font-size: 5rem; color: #dee2e6; }
+.quick-view-image img { width: 100%; height: 100%; object-fit: cover; border-radius: 12px; }
+
+/* Quantity Selector */
+.quantity-selector { display: flex; align-items: center; gap: 8px; }
+.quantity-selector input { width: 50px; border-radius: 8px; }
+.quantity-selector button { width: 36px; height: 36px; padding: 0; display: flex; align-items: center; justify-content: center; border-radius: 8px; }
+
+/* Favorite Indicator */
+.favorite-indicator { font-size: 1.2rem; }
+
+/* Cart Styles */
+.cart-badge { font-size: 0.65rem; }
+.cart-items-container { max-height: calc(100vh - 200px); overflow-y: auto; }
+.cart-item-image { width: 60px; height: 60px; background-color: #f8f9fa; border-radius: 8px; display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0; }
+.cart-item-image img { width: 100%; height: 100%; object-fit: cover; }
+.cart-item-image i { font-size: 1.5rem; color: #dee2e6; }
+
+/* Offcanvas Footer */
+.offcanvas-footer { background-color: #f8f9fa; }
+
+/* ============================================
+   Customer Dashboard Styles
+   ============================================ */
+
+/* Hero Section */
+.customer-hero {
+    background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+}
+
+.customer-hero .hero-icon {
+    font-size: 6rem;
+    opacity: 0.3;
+}
+
+.customer-hero .hero-icon i {
+    color: #fff;
+}
+
+/* Quick Action Cards */
+.quick-action-card {
+    border: none;
+    border-radius: 16px;
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.quick-action-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.15) !important;
+}
+
+.quick-action-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    font-size: 2rem;
+    transition: all 0.3s ease;
+}
+
+.quick-action-card:hover .quick-action-icon {
+    transform: scale(1.1);
+}
+
+/* How It Works Section */
+.how-it-works-step {
+    position: relative;
+    padding: 20px;
+}
+
+.step-number {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 30px;
+    height: 30px;
+    background-color: var(--primary-color);
+    color: #fff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.9rem;
+}
+
+.step-icon {
+    width: 70px;
+    height: 70px;
+    background-color: #e9ecef;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 30px auto 0;
+    font-size: 1.8rem;
+    color: var(--primary-color);
+    transition: all 0.3s ease;
+}
+
+.how-it-works-step:hover .step-icon {
+    background-color: var(--primary-color);
+    color: #fff;
+    transform: scale(1.1);
+}
+
+/* ============================================
+   Browse Trucks / Truck Cards Styles
+   ============================================ */
+
+.truck-card {
+    border: none;
+    border-radius: 16px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.truck-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.12) !important;
+}
+
+.truck-card.truck-closed {
+    opacity: 0.7;
+}
+
+.truck-card .card-img-container {
+    position: relative;
+    height: 180px;
+    overflow: hidden;
+    background-color: #f8f9fa;
+}
+
+.truck-card .card-img-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.truck-card:hover .card-img-container img {
+    transform: scale(1.05);
+}
+
+.truck-card .card-img-placeholder {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 4rem;
+    color: #dee2e6;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+}
+
+.truck-status-overlay {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    padding: 6px 12px;
+    border-radius: 50px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.truck-status-overlay i {
+    font-size: 0.5rem;
+    margin-right: 4px;
+}
+
+.truck-card .card-title {
+    font-size: 1.15rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.truck-description {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    font-size: 0.9rem;
+    color: #6c757d;
+    min-height: 40px;
+}
+
+.truck-rating {
+    font-size: 0.9rem;
+}
+
+.truck-rating i {
+    margin-right: 4px;
+}
+
+/* ============================================
+   Customer Orders Styles
+   ============================================ */
+
+/* Order Filter Tabs */
+.customer-order-tabs .nav-link {
+    color: #6c757d;
+    border-radius: 50px;
+    padding: 8px 16px;
+    margin-right: 8px;
+    transition: all 0.2s ease;
+}
+
+.customer-order-tabs .nav-link:hover {
+    background-color: #e9ecef;
+}
+
+.customer-order-tabs .nav-link.active {
+    background-color: var(--primary-color);
+    color: #fff;
+}
+
+.customer-order-tabs .nav-link i {
+    margin-right: 4px;
+}
+
+/* Order Card */
+.order-card {
+    border: none;
+    border-radius: 12px;
+    transition: all 0.2s ease;
+    border-left: 4px solid var(--primary-color);
+}
+
+.order-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1) !important;
+}
+
+.order-card .order-id h5 {
+    color: var(--primary-color);
+    font-weight: 700;
+}
+
+.order-card .order-total h5 {
+    font-weight: 700;
+}
+
+/* Order Status Badge */
+.bg-orange {
+    background-color: #fd7e14 !important;
+    color: #fff;
+}
+
+/* Order Status Progress */
+.order-status-progress {
+    padding: 20px 0;
+}
+
+.status-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 0 0 auto;
+}
+
+.step-icon-wrapper {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    transition: all 0.3s ease;
+}
+
+.step-pending .step-icon-wrapper {
+    background-color: #e9ecef;
+    color: #adb5bd;
+}
+
+.step-current .step-icon-wrapper {
+    background-color: var(--primary-color);
+    color: #fff;
+    box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.2);
+}
+
+.step-completed .step-icon-wrapper {
+    background-color: var(--success-color);
+    color: #fff;
+}
+
+.step-label {
+    font-size: 0.75rem;
+    margin-top: 8px;
+    color: #6c757d;
+    text-align: center;
+}
+
+.step-current .step-label {
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+.step-completed .step-label {
+    color: var(--success-color);
+}
+
+.step-line {
+    flex: 1;
+    height: 3px;
+    margin: 0 8px;
+    margin-top: 25px;
+    min-width: 30px;
+}
+
+.line-pending {
+    background-color: #e9ecef;
+}
+
+.line-completed {
+    background-color: var(--success-color);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .stats-card .card-body { padding: 12px; }
+    .stats-card h3 { font-size: 1.5rem; }
+    #statusTabs { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 10px; }
+    #statusTabs .nav-link { white-space: nowrap; padding: 6px 12px; font-size: 0.85rem; }
+    #ordersTable { font-size: 0.85rem; }
+    .btn-action { padding: 2px 6px; font-size: 0.75rem; }
+    .truck-logo { width: 60px; height: 60px; font-size: 1.8rem; }
+    .quick-action-btn { padding: 12px 15px; font-size: 0.9rem; }
+    
+    /* Customer Menu Responsive */
+    .truck-logo-lg { width: 70px; height: 70px; font-size: 2rem; }
+    .truck-header h1 { font-size: 1.5rem; }
+    .category-pills { overflow-x: auto; flex-wrap: nowrap; padding-bottom: 8px; }
+    .category-btn { white-space: nowrap; padding: 6px 12px; font-size: 0.85rem; }
+    .card-img-container { height: 150px; }
+    .quick-view-image { height: 200px; }
+    #quickViewModal .modal-body .row { flex-direction: column; }
+    #quickViewModal .modal-body .col-md-5,
+    #quickViewModal .modal-body .col-md-7 { width: 100%; }
+    
+    /* Customer Dashboard Responsive */
+    .customer-hero { padding: 2rem 0; }
+    .customer-hero .display-5 { font-size: 1.75rem; }
+    .customer-hero .hero-icon { font-size: 4rem; }
+    .quick-action-icon { width: 60px; height: 60px; font-size: 1.5rem; }
+    .step-icon { width: 50px; height: 50px; font-size: 1.3rem; }
+    .step-number { width: 24px; height: 24px; font-size: 0.75rem; }
+    
+    /* Truck Cards Responsive */
+    .truck-card .card-img-container { height: 150px; }
+    .truck-card .card-img-placeholder { font-size: 3rem; }
+    
+    /* Customer Orders Responsive */
+    .customer-order-tabs { overflow-x: auto; flex-wrap: nowrap; padding-bottom: 8px; }
+    .customer-order-tabs .nav-link { white-space: nowrap; padding: 6px 12px; font-size: 0.85rem; }
+    .order-card .row { flex-direction: column; }
+    .order-card .col-md-1, .order-card .col-md-2, .order-card .col-md-3 { margin-bottom: 10px; text-align: left !important; }
+    .order-card .order-total { text-align: left !important; }
+    .step-icon-wrapper { width: 40px; height: 40px; font-size: 1rem; }
+    .step-label { font-size: 0.65rem; }
+    .step-line { min-width: 15px; }
+}

@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Orders - Food Truck System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="/css/style.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="/customer/dashboard"><i class="bi bi-truck"></i> Food Truck System</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item"><a class="nav-link" href="/customer/dashboard"><i class="bi bi-house"></i> Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/customer/browse-trucks"><i class="bi bi-shop"></i> Browse Trucks</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/customer/cart"><i class="bi bi-cart3"></i> Cart</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="/customer/orders"><i class="bi bi-receipt"></i> My Orders</a></li>
+                </ul>
+                <div class="d-flex align-items-center">
+                    <span class="text-white me-3"><i class="bi bi-person-circle"></i> <span id="navUsername">{{username}}</span></span>
+                    <button class="btn btn-outline-light btn-sm" id="logoutBtn">
+                        <i class="bi bi-box-arrow-right"></i> Logout
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <div class="bg-light py-4 mb-4">
+        <div class="container">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-2">
+                    <li class="breadcrumb-item"><a href="/customer/dashboard">Home</a></li>
+                    <li class="breadcrumb-item active">My Orders</li>
+                </ol>
+            </nav>
+            <h2 class="mb-0"><i class="bi bi-receipt text-primary"></i> My Orders</h2>
+            <p class="text-muted mb-0">Track and view your order history</p>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container pb-5">
+        <!-- Filter Tabs -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <ul class="nav nav-pills customer-order-tabs" id="orderFilterTabs">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#" data-status="all">
+                            <i class="bi bi-grid-3x3-gap"></i> All Orders
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-status="active">
+                            <i class="bi bi-hourglass-split"></i> Active
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-status="completed">
+                            <i class="bi bi-check-circle"></i> Completed
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-status="cancelled">
+                            <i class="bi bi-x-circle"></i> Cancelled
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Orders Count -->
+        <div class="row mb-3">
+            <div class="col-12 d-flex justify-content-between align-items-center">
+                <span class="text-muted" id="ordersCount">0 orders</span>
+                <button class="btn btn-outline-primary btn-sm" id="refreshOrdersBtn">
+                    <i class="bi bi-arrow-clockwise"></i> Refresh
+                </button>
+            </div>
+        </div>
+
+        <!-- Orders List -->
+        <div class="row" id="ordersContainer">
+            <div class="col-12 text-center py-5">
+                <div class="spinner-border text-primary"></div>
+                <p class="mt-2 text-muted">Loading your orders...</p>
+            </div>
+        </div>
+
+        <!-- No Orders Message -->
+        <div id="noOrdersMessage" class="text-center py-5" style="display: none;">
+            <div class="empty-state">
+                <i class="bi bi-receipt-cutoff"></i>
+                <h5>No Orders Found</h5>
+                <p class="text-muted">You haven't placed any orders yet.</p>
+                <a href="/customer/browse-trucks" class="btn btn-primary">
+                    <i class="bi bi-shop"></i> Browse Food Trucks
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Order Details Modal -->
+    <div class="modal fade" id="orderDetailsModal" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="bi bi-receipt text-primary"></i> Order Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Order Header -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h6 class="text-muted mb-2">Order Information</h6>
+                            <p class="mb-1"><strong>Order ID:</strong> <span id="modalOrderId">#-</span></p>
+                            <p class="mb-1"><strong>Date:</strong> <span id="modalOrderDate">-</span></p>
+                            <p class="mb-0"><strong>Status:</strong> <span id="modalOrderStatus">-</span></p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-muted mb-2">Pickup Details</h6>
+                            <p class="mb-1"><strong>Food Truck:</strong> <span id="modalTruckName">-</span></p>
+                            <p class="mb-1"><strong>Pickup Date:</strong> <span id="modalPickupDate">-</span></p>
+                            <p class="mb-0"><strong>Pickup Time:</strong> <span id="modalPickupTime">-</span></p>
+                        </div>
+                    </div>
+
+                    <!-- Order Items -->
+                    <h6 class="text-muted mb-3">Order Items</h6>
+                    <div class="table-responsive mb-4">
+                        <table class="table table-sm">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Item</th>
+                                    <th class="text-center">Qty</th>
+                                    <th class="text-end">Price</th>
+                                    <th class="text-end">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody id="modalOrderItems">
+                            </tbody>
+                            <tfoot>
+                                <tr class="table-primary">
+                                    <td colspan="3" class="text-end"><strong>Total:</strong></td>
+                                    <td class="text-end"><strong id="modalOrderTotal">$0.00</strong></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+
+                    <!-- Special Instructions -->
+                    <div id="modalSpecialInstructionsSection" style="display: none;">
+                        <h6 class="text-muted mb-2">Special Instructions</h6>
+                        <div class="alert alert-light" id="modalSpecialInstructions"></div>
+                    </div>
+
+                    <!-- Order Status Timeline -->
+                    <h6 class="text-muted mb-3">Order Status</h6>
+                    <div class="order-status-progress mb-3" id="orderStatusProgress">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <a href="/customer/browse-trucks" class="btn btn-primary">
+                        <i class="bi bi-arrow-repeat"></i> Order Again
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div id="notificationToast" class="toast" role="alert">
+            <div class="toast-header">
+                <i class="bi bi-bell me-2"></i>
+                <strong class="me-auto" id="toastTitle">Notification</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body" id="toastMessage"></div>
+        </div>
+    </div>
+
+    <!-- Hidden User ID -->
+    <input type="hidden" id="userId" value="{{userId}}">
+    <input type="hidden" id="username" value="{{username}}">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/customer-orders.js"></script>
+</body>
+</html>

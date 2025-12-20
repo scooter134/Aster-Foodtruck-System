@@ -1,0 +1,306 @@
+/* ============================================
+   Cart Page Styles
+   ============================================ */
+
+/* Cart Item Styles */
+.cart-item {
+    padding: 20px;
+    border-bottom: 1px solid #e9ecef;
+    transition: background-color 0.2s ease;
+}
+
+.cart-item:hover {
+    background-color: #f8f9fa;
+}
+
+.cart-item:last-child {
+    border-bottom: none;
+}
+
+.cart-item-image {
+    width: 80px;
+    height: 80px;
+    background-color: #f8f9fa;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.cart-item-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.cart-item-image i {
+    font-size: 2rem;
+    color: #dee2e6;
+}
+
+.cart-item-details {
+    flex-grow: 1;
+    min-width: 0;
+}
+
+.cart-item-name {
+    font-weight: 600;
+    font-size: 1.1rem;
+    margin-bottom: 4px;
+    color: #333;
+}
+
+.cart-item-price {
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+.cart-item-subtotal {
+    font-weight: 700;
+    color: var(--success-color);
+    font-size: 1.1rem;
+}
+
+/* Quantity Controls */
+.quantity-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: #f8f9fa;
+    padding: 4px;
+    border-radius: 8px;
+}
+
+.quantity-controls .btn {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    font-size: 0.9rem;
+}
+
+.quantity-controls .quantity-value {
+    min-width: 40px;
+    text-align: center;
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+/* Allergy Notes */
+.allergy-note-input {
+    margin-top: 12px;
+}
+
+.allergy-note-input textarea {
+    font-size: 0.85rem;
+    resize: none;
+    border-color: #ffc107;
+    background-color: #fff9e6;
+}
+
+.allergy-note-input textarea:focus {
+    border-color: #ffc107;
+    box-shadow: 0 0 0 0.2rem rgba(255, 193, 7, 0.25);
+}
+
+.allergy-note-input label {
+    font-size: 0.8rem;
+    color: #856404;
+    font-weight: 500;
+}
+
+.allergy-note-badge {
+    background-color: #fff3cd;
+    color: #856404;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* Time Slot Styles */
+.time-slot-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+}
+
+.time-slot-btn {
+    padding: 10px 12px;
+    border: 2px solid #dee2e6;
+    border-radius: 8px;
+    background-color: #fff;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: center;
+}
+
+.time-slot-btn:hover:not(.disabled):not(.selected) {
+    border-color: var(--primary-color);
+    background-color: #f0f7ff;
+}
+
+.time-slot-btn.selected {
+    border-color: var(--primary-color);
+    background-color: var(--primary-color);
+    color: #fff;
+}
+
+.time-slot-btn.disabled {
+    background-color: #f8f9fa;
+    color: #adb5bd;
+    cursor: not-allowed;
+    border-color: #e9ecef;
+}
+
+.time-slot-btn .slot-time {
+    font-weight: 600;
+    font-size: 0.95rem;
+    display: block;
+}
+
+.time-slot-btn .slot-capacity {
+    font-size: 0.75rem;
+    opacity: 0.8;
+}
+
+.time-slot-btn.disabled .slot-capacity {
+    color: #dc3545;
+}
+
+/* Time Slots Loading */
+.time-slots-loading {
+    text-align: center;
+    padding: 20px;
+    color: #6c757d;
+}
+
+.time-slots-empty {
+    text-align: center;
+    padding: 20px;
+    color: #6c757d;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+}
+
+/* Order Summary */
+.summary-row {
+    padding: 4px 0;
+}
+
+/* Success Checkmark Animation */
+.success-checkmark {
+    animation: scaleIn 0.3s ease-out;
+}
+
+@keyframes scaleIn {
+    0% {
+        transform: scale(0);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(1.2);
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* Order Confirmation Details */
+.order-confirmation-details {
+    font-size: 0.95rem;
+}
+
+/* Remove Button */
+.remove-item-btn {
+    color: #dc3545;
+    opacity: 0.7;
+    transition: opacity 0.2s ease;
+}
+
+.remove-item-btn:hover {
+    opacity: 1;
+}
+
+/* Truck Logo Small */
+.truck-logo {
+    width: 50px;
+    height: 50px;
+    background-color: #e9ecef;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: var(--primary-color);
+}
+
+/* Processing State */
+.btn-processing {
+    position: relative;
+    pointer-events: none;
+}
+
+.btn-processing .spinner-border {
+    width: 1rem;
+    height: 1rem;
+    border-width: 2px;
+}
+
+/* Item Unavailable Warning */
+.item-unavailable-warning {
+    background-color: #fff3cd;
+    border-left: 3px solid #ffc107;
+    padding: 8px 12px;
+    margin-top: 8px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    color: #856404;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .cart-item {
+        padding: 15px;
+    }
+
+    .cart-item-image {
+        width: 60px;
+        height: 60px;
+    }
+
+    .cart-item-name {
+        font-size: 1rem;
+    }
+
+    .quantity-controls .btn {
+        width: 28px;
+        height: 28px;
+    }
+
+    .time-slot-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .time-slot-btn {
+        padding: 8px;
+    }
+
+    .time-slot-btn .slot-time {
+        font-size: 0.85rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .time-slot-grid {
+        grid-template-columns: 1fr;
+    }
+}
