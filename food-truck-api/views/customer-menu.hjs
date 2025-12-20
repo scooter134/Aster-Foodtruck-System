@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{title}} - Food Truck System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="/css/style.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="/"><i class="bi bi-truck"></i> Food Truck System</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item"><a class="nav-link active" href="#"><i class="bi bi-list-ul"></i> Menu</a></li>
+                </ul>
+                <div class="d-flex align-items-center">
+                    <a href="#" class="btn btn-outline-light position-relative" id="cartBtn" data-bs-toggle="offcanvas" data-bs-target="#cartOffcanvas">
+                        <i class="bi bi-cart3"></i> Cart
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger cart-badge" id="cartBadge" style="display: none;">0</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Truck Header -->
+    <div class="truck-header bg-light py-4 mb-4">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-auto">
+                    <div class="truck-logo-lg" id="truckLogo">
+                        <i class="bi bi-truck"></i>
+                    </div>
+                </div>
+                <div class="col">
+                    <h1 class="mb-1" id="truckName">Loading...</h1>
+                    <p class="text-muted mb-1" id="truckCuisine"><i class="bi bi-tag"></i> <span>-</span></p>
+                    <p class="text-muted mb-0" id="truckDescription">-</p>
+                </div>
+                <div class="col-auto">
+                    <span class="truck-status-badge" id="truckStatusBadge">
+                        <i class="bi bi-circle-fill"></i> <span>Loading...</span>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Category Filter -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="d-flex flex-wrap align-items-center gap-2">
+                    <span class="text-muted me-2"><i class="bi bi-funnel"></i> Filter:</span>
+                    <div class="category-pills" id="categoryPills">
+                        <button class="btn btn-primary category-btn active" data-category="all">
+                            <i class="bi bi-grid-3x3-gap"></i> All Items
+                        </button>
+                        <!-- Dynamic category buttons will be added here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="input-group">
+                    <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+                    <input type="text" class="form-control" id="searchMenu" placeholder="Search menu items...">
+                </div>
+            </div>
+            <div class="col-md-6 text-md-end mt-2 mt-md-0">
+                <span class="text-muted" id="itemCount">0 items</span>
+            </div>
+        </div>
+
+        <!-- Menu Items Grid -->
+        <div class="row" id="menuItemsGrid">
+            <div class="col-12 text-center py-5">
+                <div class="spinner-border text-primary"></div>
+                <p class="mt-2 text-muted">Loading menu items...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick View Modal -->
+    <div class="modal fade" id="quickViewModal" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-0 pb-0">
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body pt-0">
+                    <div class="row">
+                        <div class="col-md-5">
+                            <div class="quick-view-image" id="modalItemImage">
+                                <i class="bi bi-image"></i>
+                            </div>
+                        </div>
+                        <div class="col-md-7">
+                            <div class="d-flex align-items-start justify-content-between mb-2">
+                                <h3 class="mb-0" id="modalItemName">Item Name</h3>
+                                <span class="favorite-indicator ms-2" id="modalFavoriteIndicator" title="Favorite Item" style="display: none;">
+                                    <i class="bi bi-heart-fill text-danger"></i>
+                                </span>
+                            </div>
+                            <span class="badge bg-secondary mb-3" id="modalItemCategory">Category</span>
+                            <span class="availability-badge ms-2" id="modalItemAvailability"></span>
+                            <p class="text-muted mb-3" id="modalItemDescription">Description</p>
+                            <h4 class="text-success mb-4" id="modalItemPrice">$0.00</h4>
+                            
+                            <div class="mb-3" id="modalAllergyContainer">
+                                <label class="form-label"><i class="bi bi-exclamation-triangle"></i> Allergy Notes</label>
+                                <textarea class="form-control" id="modalAllergyNote" rows="2" placeholder="Enter any allergy information or special requests..."></textarea>
+                            </div>
+                            
+                            <div class="d-flex align-items-center gap-3 mb-3">
+                                <label class="form-label mb-0">Quantity:</label>
+                                <div class="quantity-selector">
+                                    <button class="btn btn-outline-secondary btn-sm" id="modalQtyMinus"><i class="bi bi-dash"></i></button>
+                                    <input type="number" class="form-control form-control-sm text-center" id="modalQuantity" value="1" min="1" max="10" readonly>
+                                    <button class="btn btn-outline-secondary btn-sm" id="modalQtyPlus"><i class="bi bi-plus"></i></button>
+                                </div>
+                            </div>
+                            
+                            <button class="btn btn-primary btn-lg w-100" id="modalAddToCartBtn" disabled>
+                                <i class="bi bi-cart-plus"></i> Add to Cart - <span id="modalTotalPrice">$0.00</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cart Offcanvas -->
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="cartOffcanvas">
+        <div class="offcanvas-header border-bottom">
+            <h5 class="offcanvas-title"><i class="bi bi-cart3"></i> Your Cart</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+        </div>
+        <div class="offcanvas-body p-0">
+            <div id="cartItems" class="cart-items-container">
+                <div class="text-center py-5 text-muted">
+                    <i class="bi bi-cart-x" style="font-size: 3rem;"></i>
+                    <p class="mt-2">Your cart is empty</p>
+                </div>
+            </div>
+        </div>
+        <div class="offcanvas-footer border-top p-3" id="cartFooter" style="display: none;">
+            <div class="d-flex justify-content-between mb-3">
+                <span class="fw-bold">Total:</span>
+                <span class="fw-bold text-success" id="cartTotal">$0.00</span>
+            </div>
+            <button class="btn btn-success w-100" id="checkoutBtn">
+                <i class="bi bi-credit-card"></i> Proceed to Checkout
+            </button>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div id="notificationToast" class="toast" role="alert">
+            <div class="toast-header">
+                <i class="bi bi-bell me-2"></i>
+                <strong class="me-auto" id="toastTitle">Notification</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body" id="toastMessage"></div>
+        </div>
+    </div>
+
+    <!-- Hidden truck ID -->
+    <input type="hidden" id="truckId" value="{{truckId}}">
+    
+    <!-- Hidden user ID (for demo purposes - in production this would come from auth) -->
+    <input type="hidden" id="userId" value="1">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/customer-menu.js"></script>
+</body>
+</html>
