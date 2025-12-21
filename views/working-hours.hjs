@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Working Hours - Food Truck System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="/css/style.css" rel="stylesheet">
+    <style>
+        .day-card { transition: all 0.2s; }
+        .day-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+        .day-card.closed { opacity: 0.6; }
+        .day-name { font-weight: bold; font-size: 1.1rem; }
+        .time-display { font-size: 1.2rem; color: #28a745; }
+        .time-display.closed { color: #dc3545; }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/ownerDashboard"><i class="bi bi-truck"></i> Food Truck Owner</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item"><a class="nav-link" href="/ownerDashboard"><i class="bi bi-speedometer2"></i> Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/menuItems"><i class="bi bi-list-ul"></i> Menu Items</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/truckOrders"><i class="bi bi-receipt"></i> Orders</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/analytics"><i class="bi bi-graph-up"></i> Analytics</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="/working-hours"><i class="bi bi-clock"></i> Hours</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/workers"><i class="bi bi-people"></i> Workers</a></li>
+                </ul>
+                <div class="d-flex align-items-center">
+                    <span class="text-white me-3" id="navUsername"><i class="bi bi-person-circle"></i></span>
+                    <button class="btn btn-outline-light btn-sm" id="logoutBtn"><i class="bi bi-box-arrow-right"></i> Logout</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container py-4">
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h2><i class="bi bi-clock text-primary"></i> Working Hours</h2>
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addHoursModal">
+                        <i class="bi bi-plus-circle"></i> Add Hours
+                    </button>
+                </div>
+                <p class="text-muted">Manage your food truck's operating schedule</p>
+            </div>
+        </div>
+
+        <!-- Loading State -->
+        <div id="loadingState" class="text-center py-5">
+            <div class="spinner-border text-primary"></div>
+            <p class="mt-2 text-muted">Loading working hours...</p>
+        </div>
+
+        <!-- Hours Grid -->
+        <div class="row" id="hoursGrid" style="display: none;">
+            <!-- Days will be rendered here -->
+        </div>
+
+        <!-- Empty State -->
+        <div id="emptyState" class="text-center py-5" style="display: none;">
+            <i class="bi bi-clock-history" style="font-size: 4rem; color: #dee2e6;"></i>
+            <h5 class="mt-3">No Working Hours Set</h5>
+            <p class="text-muted">Click "Add Hours" to set your operating schedule</p>
+        </div>
+    </div>
+
+    <!-- Add/Edit Hours Modal -->
+    <div class="modal fade" id="addHoursModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalTitle"><i class="bi bi-clock"></i> Add Working Hours</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="hoursForm">
+                    <div class="modal-body">
+                        <input type="hidden" id="hoursId">
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Day of Week *</label>
+                            <select class="form-select" id="dayOfWeek" required>
+                                <option value="">Select day...</option>
+                                <option value="0">Sunday</option>
+                                <option value="1">Monday</option>
+                                <option value="2">Tuesday</option>
+                                <option value="3">Wednesday</option>
+                                <option value="4">Thursday</option>
+                                <option value="5">Friday</option>
+                                <option value="6">Saturday</option>
+                            </select>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Open Time *</label>
+                                    <input type="time" class="form-control" id="openTime" required>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Close Time *</label>
+                                    <input type="time" class="form-control" id="closeTime" required>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="isActive" checked>
+                            <label class="form-check-label" for="isActive">Open on this day</label>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary" id="saveBtn">
+                            <i class="bi bi-check-lg"></i> Save
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal fade" id="deleteModal" tabindex="-1">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title"><i class="bi bi-exclamation-triangle"></i> Delete</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Delete working hours for <strong id="deleteDay"></strong>?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div id="notificationToast" class="toast" role="alert">
+            <div class="toast-header">
+                <i class="bi bi-bell me-2"></i>
+                <strong class="me-auto" id="toastTitle">Notification</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body" id="toastMessage"></div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/api.js"></script>
+    <script>
+        const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        let currentTruckId = null;
+        let hoursData = [];
+        let deleteId = null;
+
+        $(document).ready(function() {
+            const user = API.getUser();
+            if (!user || user.user_type !== 'owner') {
+                window.location.href = '/login';
+                return;
+            }
+            $('#navUsername').html('<i class="bi bi-person-circle"></i> ' + (user.first_name || 'Owner'));
+            
+            loadFoodTruck();
+            
+            $('#hoursForm').on('submit', saveHours);
+            $('#confirmDeleteBtn').on('click', deleteHours);
+            $('#logoutBtn').on('click', () => API.logout());
+            
+            $('#addHoursModal').on('show.bs.modal', function(e) {
+                if (!$(e.relatedTarget).data('id')) {
+                    $('#modalTitle').html('<i class="bi bi-clock"></i> Add Working Hours');
+                    $('#hoursForm')[0].reset();
+                    $('#hoursId').val('');
+                    $('#isActive').prop('checked', true);
+                }
+            });
+        });
+
+        async function loadFoodTruck() {
+            try {
+                const response = await $.ajax({ url: '/api/food-trucks', method: 'GET' });
+                if (response.success && response.data.length > 0) {
+                    currentTruckId = response.data[0].food_truck_id;
+                    loadWorkingHours();
+                }
+            } catch (error) {
+                console.error('Error loading truck:', error);
+            }
+        }
+
+        async function loadWorkingHours() {
+            try {
+                const response = await $.ajax({
+                    url: `/api/operating-hours?food_truck_id=${currentTruckId}`,
+                    method: 'GET'
+                });
+                
+                $('#loadingState').hide();
+                
+                if (response.success && response.data.length > 0) {
+                    hoursData = response.data;
+                    renderHoursGrid();
+                    $('#hoursGrid').show();
+                    $('#emptyState').hide();
+                } else {
+                    $('#hoursGrid').hide();
+                    $('#emptyState').show();
+                }
+            } catch (error) {
+                console.error('Error loading hours:', error);
+                $('#loadingState').hide();
+                $('#emptyState').show();
+            }
+        }
+
+        function renderHoursGrid() {
+            // Create a map of existing hours by day
+            const hoursByDay = {};
+            hoursData.forEach(h => {
+                hoursByDay[h.day_of_week] = h;
+            });
+            
+            let html = '';
+            DAYS.forEach((day, index) => {
+                const hours = hoursByDay[index];
+                const isOpen = hours && hours.is_active;
+                
+                html += `
+                    <div class="col-md-6 col-lg-4 mb-3">
+                        <div class="card day-card ${!isOpen ? 'closed' : ''}">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <span class="day-name">${day}</span>
+                                    ${hours ? `
+                                        <div class="btn-group btn-group-sm">
+                                            <button class="btn btn-outline-primary" onclick="editHours(${hours.operating_hour_id})">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                            <button class="btn btn-outline-danger" onclick="confirmDelete(${hours.operating_hour_id}, '${day}')">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </div>
+                                    ` : ''}
+                                </div>
+                                ${hours ? `
+                                    <div class="time-display ${!isOpen ? 'closed' : ''}">
+                                        ${isOpen ? `
+                                            <i class="bi bi-clock"></i> ${formatTime(hours.open_time)} - ${formatTime(hours.close_time)}
+                                        ` : `
+                                            <i class="bi bi-x-circle"></i> Closed
+                                        `}
+                                    </div>
+                                ` : `
+                                    <div class="text-muted">
+                                        <i class="bi bi-plus-circle"></i> 
+                                        <a href="#" onclick="addHoursForDay(${index}); return false;">Add hours</a>
+                                    </div>
+                                `}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            $('#hoursGrid').html(html);
+        }
+
+        function formatTime(timeStr) {
+            if (!timeStr) return '';
+            const [hours, minutes] = timeStr.split(':');
+            const h = parseInt(hours);
+            const ampm = h >= 12 ? 'PM' : 'AM';
+            const h12 = h % 12 || 12;
+            return `${h12}:${minutes} ${ampm}`;
+        }
+
+        function addHoursForDay(dayIndex) {
+            $('#hoursForm')[0].reset();
+            $('#hoursId').val('');
+            $('#dayOfWeek').val(dayIndex);
+            $('#isActive').prop('checked', true);
+            $('#modalTitle').html('<i class="bi bi-clock"></i> Add Working Hours');
+            new bootstrap.Modal('#addHoursModal').show();
+        }
+
+        function editHours(id) {
+            const hours = hoursData.find(h => h.operating_hour_id === id);
+            if (!hours) return;
+            
+            $('#hoursId').val(hours.operating_hour_id);
+            $('#dayOfWeek').val(hours.day_of_week);
+            $('#openTime').val(hours.open_time);
+            $('#closeTime').val(hours.close_time);
+            $('#isActive').prop('checked', hours.is_active);
+            $('#modalTitle').html('<i class="bi bi-pencil"></i> Edit Working Hours');
+            
+            new bootstrap.Modal('#addHoursModal').show();
+        }
+
+        async function saveHours(e) {
+            e.preventDefault();
+            
+            const id = $('#hoursId').val();
+            const data = {
+                food_truck_id: currentTruckId,
+                day_of_week: parseInt($('#dayOfWeek').val()),
+                open_time: $('#openTime').val(),
+                close_time: $('#closeTime').val(),
+                is_active: $('#isActive').prop('checked')
+            };
+            
+            try {
+                $('#saveBtn').prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span>');
+                
+                const response = await $.ajax({
+                    url: id ? `/api/operating-hours/${id}` : '/api/operating-hours',
+                    method: id ? 'PUT' : 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(data)
+                });
+                
+                if (response.success) {
+                    bootstrap.Modal.getInstance(document.getElementById('addHoursModal')).hide();
+                    showToast('Success', id ? 'Hours updated' : 'Hours added', 'success');
+                    loadWorkingHours();
+                    
+                    // Auto-generate time slots for the next 7 days
+                    generateTimeSlots();
+                }
+            } catch (error) {
+                showToast('Error', error.responseJSON?.error || 'Failed to save', 'danger');
+            } finally {
+                $('#saveBtn').prop('disabled', false).html('<i class="bi bi-check-lg"></i> Save');
+            }
+        }
+
+        function confirmDelete(id, day) {
+            deleteId = id;
+            $('#deleteDay').text(day);
+            new bootstrap.Modal('#deleteModal').show();
+        }
+
+        async function deleteHours() {
+            if (!deleteId) return;
+            
+            try {
+                const response = await $.ajax({
+                    url: `/api/operating-hours/${deleteId}`,
+                    method: 'DELETE'
+                });
+                
+                if (response.success) {
+                    bootstrap.Modal.getInstance(document.getElementById('deleteModal')).hide();
+                    showToast('Deleted', 'Working hours removed', 'info');
+                    loadWorkingHours();
+                }
+            } catch (error) {
+                showToast('Error', 'Failed to delete', 'danger');
+            }
+        }
+
+        async function generateTimeSlots() {
+            try {
+                // First DELETE all existing time slots for this truck (that don't have orders)
+                await $.ajax({
+                    url: `/api/time-slots/food-truck/${currentTruckId}`,
+                    method: 'DELETE'
+                });
+                
+                // Then generate new slots based ONLY on the operating hours you set
+                const response = await $.ajax({
+                    url: '/api/time-slots/generate',
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({ food_truck_id: currentTruckId, days: 7 })
+                });
+                
+                if (response.success) {
+                    showToast('Time Slots', response.message, 'info');
+                }
+            } catch (error) {
+                console.error('Error generating time slots:', error);
+            }
+        }
+
+        function showToast(title, message, type) {
+            const header = $('#notificationToast .toast-header');
+            header.removeClass('bg-success bg-danger bg-info text-white');
+            if (type === 'success') header.addClass('bg-success text-white');
+            else if (type === 'danger') header.addClass('bg-danger text-white');
+            else header.addClass('bg-info text-white');
+            
+            $('#toastTitle').text(title);
+            $('#toastMessage').text(message);
+            new bootstrap.Toast(document.getElementById('notificationToast')).show();
+        }
+    </script>
+</body>
+</html>

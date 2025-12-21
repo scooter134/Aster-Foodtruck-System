@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Cart - Food Truck System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="/css/style.css" rel="stylesheet">
+    <link href="/css/cart.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="/"><i class="bi bi-truck"></i> Food Truck System</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item"><a class="nav-link" href="/dashboard"><i class="bi bi-house"></i> Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/trucks"><i class="bi bi-shop"></i> Browse Trucks</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="/cart"><i class="bi bi-cart3"></i> Cart</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/myOrders"><i class="bi bi-receipt"></i> My Orders</a></li>
+                </ul>
+                <div class="d-flex align-items-center">
+                    <span class="text-white me-3" id="navUsername"><i class="bi bi-person-circle"></i></span>
+                    <button class="btn btn-outline-light btn-sm" id="logoutBtn">
+                        <i class="bi bi-box-arrow-right"></i> Logout
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container py-4">
+        <!-- Page Header -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="/">Home</a></li>
+                        <li class="breadcrumb-item active">My Cart</li>
+                    </ol>
+                </nav>
+                <h2 class="mb-0"><i class="bi bi-cart3 text-primary"></i> My Cart</h2>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Cart Items Section -->
+            <div class="col-lg-8">
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="bi bi-bag"></i> Cart Items</h5>
+                        <span class="badge bg-primary" id="cartItemCount">0 items</span>
+                    </div>
+                    <div class="card-body p-0">
+                        <!-- Loading State -->
+                        <div id="cartLoading" class="text-center py-5">
+                            <div class="spinner-border text-primary"></div>
+                            <p class="mt-2 text-muted">Loading your cart...</p>
+                        </div>
+
+                        <!-- Empty Cart State -->
+                        <div id="cartEmpty" class="empty-state py-5" style="display: none;">
+                            <i class="bi bi-cart-x"></i>
+                            <h5>Your cart is empty</h5>
+                            <p class="text-muted">Looks like you haven't added any items yet</p>
+                            <a href="/customer/menu/1" class="btn btn-primary">
+                                <i class="bi bi-arrow-left"></i> Browse Menu
+                            </a>
+                        </div>
+
+                        <!-- Cart Items List -->
+                        <div id="cartItemsList" style="display: none;">
+                            <!-- Cart items will be rendered here -->
+                        </div>
+                    </div>
+                    <div class="card-footer bg-white" id="cartActions" style="display: none;">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <button class="btn btn-outline-danger btn-sm" id="clearCartBtn">
+                                <i class="bi bi-trash"></i> Clear Cart
+                            </button>
+                            <a href="/customer/menu/1" class="btn btn-outline-primary btn-sm">
+                                <i class="bi bi-plus-lg"></i> Add More Items
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Order Summary & Checkout Section -->
+            <div class="col-lg-4">
+                <!-- Time Slot Selection -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0"><i class="bi bi-clock"></i> Pickup Time</h5>
+                    </div>
+                    <div class="card-body">
+                        <!-- Date Selection -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Select Date</label>
+                            <input type="date" class="form-control" id="pickupDate" min="">
+                        </div>
+
+                        <!-- Time Slot Selection -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Select Time Slot</label>
+                            <div id="timeSlotsContainer">
+                                <p class="text-muted small">Please select a date first</p>
+                            </div>
+                        </div>
+
+                        <!-- Selected Slot Display -->
+                        <div id="selectedSlotDisplay" class="alert alert-info d-none">
+                            <i class="bi bi-check-circle"></i>
+                            <span id="selectedSlotText"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Order Summary -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0"><i class="bi bi-receipt"></i> Order Summary</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="summary-row d-flex justify-content-between mb-2">
+                            <span class="text-muted">Subtotal</span>
+                            <span id="subtotalAmount">$0.00</span>
+                        </div>
+                        <div class="summary-row d-flex justify-content-between mb-2">
+                            <span class="text-muted">Items</span>
+                            <span id="totalItemsCount">0</span>
+                        </div>
+                        <hr>
+                        <div class="summary-row d-flex justify-content-between mb-3">
+                            <span class="fw-bold">Total</span>
+                            <span class="fw-bold text-success fs-5" id="totalAmount">$0.00</span>
+                        </div>
+
+                        <!-- Checkout Button -->
+                        <button class="btn btn-success btn-lg w-100" id="placeOrderBtn" disabled>
+                            <i class="bi bi-check-circle"></i> Place Order
+                        </button>
+
+                        <!-- Validation Messages -->
+                        <div id="checkoutValidation" class="mt-3" style="display: none;">
+                            <div class="alert alert-warning mb-0 py-2">
+                                <small><i class="bi bi-exclamation-triangle"></i> <span id="validationMessage"></span></small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Food Truck Info -->
+                <div class="card shadow-sm" id="truckInfoCard" style="display: none;">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="truck-logo me-3" id="truckLogo">
+                                <i class="bi bi-truck"></i>
+                            </div>
+                            <div>
+                                <h6 class="mb-1" id="truckName">-</h6>
+                                <p class="text-muted small mb-0" id="truckLocation"><i class="bi bi-geo-alt"></i> -</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Order Confirmation Modal -->
+    <div class="modal fade" id="orderConfirmationModal" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title"><i class="bi bi-check-circle"></i> Order Confirmed!</h5>
+                </div>
+                <div class="modal-body text-center py-4">
+                    <div class="success-checkmark mb-3">
+                        <i class="bi bi-check-circle-fill text-success" style="font-size: 4rem;"></i>
+                    </div>
+                    <h4 class="mb-3">Thank you for your order!</h4>
+                    <p class="text-muted mb-4">Your order has been placed successfully.</p>
+                    
+                    <!-- Order Details -->
+                    <div class="order-confirmation-details bg-light rounded p-3 text-start">
+                        <div class="row mb-2">
+                            <div class="col-5 text-muted">Order ID:</div>
+                            <div class="col-7 fw-bold" id="confirmOrderId">#-</div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-5 text-muted">Pickup Time:</div>
+                            <div class="col-7 fw-bold" id="confirmPickupTime">-</div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-5 text-muted">Items:</div>
+                            <div class="col-7" id="confirmItemCount">-</div>
+                        </div>
+                        <div class="row">
+                            <div class="col-5 text-muted">Total:</div>
+                            <div class="col-7 fw-bold text-success" id="confirmTotal">$0.00</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer justify-content-center border-0">
+                    <a href="/customer/orders" class="btn btn-primary">
+                        <i class="bi bi-receipt"></i> View My Orders
+                    </a>
+                    <a href="/customer/menu/1" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left"></i> Continue Shopping
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Clear Cart Confirmation Modal -->
+    <div class="modal fade" id="clearCartModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="bi bi-exclamation-triangle text-warning"></i> Clear Cart</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to remove all items from your cart?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger" id="confirmClearCartBtn">Clear Cart</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div id="notificationToast" class="toast" role="alert">
+            <div class="toast-header">
+                <i class="bi bi-bell me-2"></i>
+                <strong class="me-auto" id="toastTitle">Notification</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body" id="toastMessage"></div>
+        </div>
+    </div>
+
+    <!-- Hidden User ID -->
+    <input type="hidden" id="userId" value="{{userId}}">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/api.js"></script>
+    <script src="/js/cart.js"></script>
+</body>
+</html>

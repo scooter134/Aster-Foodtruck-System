@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Orders - Food Truck System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="/css/style.css" rel="stylesheet">
+    <link href="/css/customer-orders.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="/"><i class="bi bi-truck"></i> Food Truck System</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item"><a class="nav-link" href="/customer/dashboard"><i class="bi bi-house"></i> Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/customer/browse-trucks"><i class="bi bi-shop"></i> Browse Trucks</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/customer/cart"><i class="bi bi-cart3"></i> Cart</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="/customer/orders"><i class="bi bi-receipt"></i> My Orders</a></li>
+                </ul>
+                <div class="d-flex align-items-center">
+                    <span class="text-white me-3" id="navUsername"><i class="bi bi-person-circle"></i></span>
+                    <button class="btn btn-outline-light btn-sm" id="logoutBtn">
+                        <i class="bi bi-box-arrow-right"></i> Logout
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container py-4">
+        <!-- Page Header -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="/">Home</a></li>
+                        <li class="breadcrumb-item active">My Orders</li>
+                    </ol>
+                </nav>
+                <div class="d-flex justify-content-between align-items-center">
+                    <h2 class="mb-0"><i class="bi bi-receipt text-primary"></i> My Orders</h2>
+                    <button class="btn btn-outline-primary" id="refreshOrdersBtn">
+                        <i class="bi bi-arrow-clockwise"></i> Refresh
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search and Filter Bar -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="input-group">
+                    <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+                    <input type="text" class="form-control" id="searchOrders" placeholder="Search by order ID or truck name...">
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="d-flex gap-2 justify-content-md-end mt-2 mt-md-0">
+                    <select class="form-select" id="statusFilter" style="width: auto;">
+                        <option value="all">All Orders</option>
+                        <option value="pending">Pending</option>
+                        <option value="confirmed">Confirmed</option>
+                        <option value="preparing">Preparing</option>
+                        <option value="ready">Ready for Pickup</option>
+                        <option value="picked_up">Completed</option>
+                        <option value="cancelled">Cancelled</option>
+                    </select>
+                    <select class="form-select" id="sortOrder" style="width: auto;">
+                        <option value="newest">Newest First</option>
+                        <option value="oldest">Oldest First</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Active Orders Alert -->
+        <div id="activeOrdersAlert" class="mb-4" style="display: none;">
+            <div class="alert alert-info d-flex align-items-center">
+                <div class="alert-icon me-3">
+                    <i class="bi bi-bell-fill fs-4"></i>
+                </div>
+                <div>
+                    <strong>You have active orders!</strong>
+                    <span id="activeOrdersText">Your order is being prepared.</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Orders List -->
+        <div class="row">
+            <div class="col-12">
+                <!-- Loading State -->
+                <div id="ordersLoading" class="text-center py-5">
+                    <div class="spinner-border text-primary"></div>
+                    <p class="mt-2 text-muted">Loading your orders...</p>
+                </div>
+
+                <!-- Empty State -->
+                <div id="ordersEmpty" class="empty-state py-5" style="display: none;">
+                    <i class="bi bi-receipt-cutoff"></i>
+                    <h5>No orders yet</h5>
+                    <p class="text-muted">You haven't placed any orders yet</p>
+                    <a href="/customer/menu/1" class="btn btn-primary">
+                        <i class="bi bi-shop"></i> Browse Menu
+                    </a>
+                </div>
+
+                <!-- Orders Container -->
+                <div id="ordersContainer" style="display: none;">
+                    <!-- Orders will be rendered here -->
+                </div>
+
+                <!-- Pagination -->
+                <nav id="ordersPagination" class="mt-4" style="display: none;">
+                    <ul class="pagination justify-content-center">
+                        <!-- Pagination will be rendered here -->
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+
+    <!-- Order Details Modal -->
+    <div class="modal fade" id="orderDetailsModal" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="bi bi-receipt"></i> Order <span id="modalOrderNumber"></span>
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Order Status Tracker -->
+                    <div class="order-tracker mb-4">
+                        <h6 class="text-muted mb-3"><i class="bi bi-geo-alt"></i> Order Status</h6>
+                        <div class="progress-tracker" id="orderProgressTracker">
+                            <div class="tracker-step" data-step="pending">
+                                <div class="tracker-icon"><i class="bi bi-hourglass-split"></i></div>
+                                <div class="tracker-label">Pending</div>
+                            </div>
+                            <div class="tracker-line"></div>
+                            <div class="tracker-step" data-step="preparing">
+                                <div class="tracker-icon"><i class="bi bi-fire"></i></div>
+                                <div class="tracker-label">Preparing</div>
+                            </div>
+                            <div class="tracker-line"></div>
+                            <div class="tracker-step" data-step="ready">
+                                <div class="tracker-icon"><i class="bi bi-bell"></i></div>
+                                <div class="tracker-label">Ready</div>
+                            </div>
+                            <div class="tracker-line"></div>
+                            <div class="tracker-step" data-step="completed">
+                                <div class="tracker-icon"><i class="bi bi-check-circle"></i></div>
+                                <div class="tracker-label">Completed</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Order Info -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="info-card">
+                                <h6 class="text-muted mb-2"><i class="bi bi-truck"></i> Food Truck</h6>
+                                <p class="mb-1 fw-bold" id="modalTruckName">-</p>
+                                <p class="text-muted small mb-0" id="modalPickupTime">-</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="info-card">
+                                <h6 class="text-muted mb-2"><i class="bi bi-calendar-event"></i> Order Date</h6>
+                                <p class="mb-1 fw-bold" id="modalOrderDate">-</p>
+                                <p class="mb-0">
+                                    <span class="status-badge" id="modalOrderStatus">-</span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Order Items -->
+                    <div class="order-items-section mb-4">
+                        <h6 class="text-muted mb-3"><i class="bi bi-bag"></i> Order Items</h6>
+                        <div class="table-responsive">
+                            <table class="table table-sm mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Item</th>
+                                        <th class="text-center">Qty</th>
+                                        <th class="text-end">Price</th>
+                                        <th class="text-end">Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="modalOrderItems">
+                                    <!-- Items will be rendered here -->
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td colspan="3" class="text-end text-muted">Subtotal:</td>
+                                        <td class="text-end" id="modalSubtotal">$0.00</td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="3" class="text-end text-muted">Tax:</td>
+                                        <td class="text-end" id="modalTax">$0.00</td>
+                                    </tr>
+                                    <tr class="table-primary fw-bold">
+                                        <td colspan="3" class="text-end">Total:</td>
+                                        <td class="text-end" id="modalTotal">$0.00</td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Special Instructions -->
+                    <div id="modalSpecialInstructionsSection" class="mb-4" style="display: none;">
+                        <h6 class="text-muted mb-2"><i class="bi bi-chat-left-text"></i> Special Instructions</h6>
+                        <div class="alert alert-light mb-0" id="modalSpecialInstructions">-</div>
+                    </div>
+
+                    <!-- Status Timeline -->
+                    <div class="status-history-section">
+                        <h6 class="text-muted mb-3"><i class="bi bi-clock-history"></i> Status History</h6>
+                        <div class="status-timeline" id="modalStatusHistory">
+                            <!-- Timeline will be rendered here -->
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-success" id="orderAgainBtn">
+                        <i class="bi bi-arrow-repeat"></i> Order Again
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Order Ready Notification Modal -->
+    <div class="modal fade" id="orderReadyModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title"><i class="bi bi-bell-fill"></i> Order Ready!</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-center py-4">
+                    <div class="ready-icon mb-3">
+                        <i class="bi bi-bag-check-fill text-success" style="font-size: 4rem;"></i>
+                    </div>
+                    <h4 class="mb-2">Your order is ready for pickup!</h4>
+                    <p class="text-muted mb-3">Order <span id="readyOrderNumber" class="fw-bold">-</span></p>
+                    <p class="mb-0" id="readyTruckName">-</p>
+                </div>
+                <div class="modal-footer justify-content-center">
+                    <button type="button" class="btn btn-success btn-lg" data-bs-dismiss="modal">
+                        <i class="bi bi-check2"></i> Got it!
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div id="notificationToast" class="toast" role="alert">
+            <div class="toast-header">
+                <i class="bi bi-bell me-2"></i>
+                <strong class="me-auto" id="toastTitle">Notification</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body" id="toastMessage"></div>
+        </div>
+    </div>
+
+    <!-- Hidden User ID -->
+    <input type="hidden" id="userId" value="{{userId}}">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/api.js"></script>
+    <script src="/js/customer-orders.js"></script>
+</body>
+</html>

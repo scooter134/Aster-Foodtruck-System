@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sales Analytics - Food Truck System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="/css/style.css" rel="stylesheet">
+    <style>
+        .stat-card { border-left: 4px solid; }
+        .stat-card.revenue { border-color: #28a745; }
+        .stat-card.orders { border-color: #007bff; }
+        .stat-card.customers { border-color: #ffc107; }
+        .stat-card.items { border-color: #17a2b8; }
+        .stat-value { font-size: 2rem; font-weight: bold; }
+        .trend-up { color: #28a745; }
+        .trend-down { color: #dc3545; }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/ownerDashboard"><i class="bi bi-truck"></i> Food Truck Owner</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item"><a class="nav-link" href="/ownerDashboard"><i class="bi bi-speedometer2"></i> Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/menuItems"><i class="bi bi-list-ul"></i> Menu Items</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/truckOrders"><i class="bi bi-receipt"></i> Orders</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="/analytics"><i class="bi bi-graph-up"></i> Analytics</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/working-hours"><i class="bi bi-clock"></i> Hours</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/workers"><i class="bi bi-people"></i> Workers</a></li>
+                </ul>
+                <div class="d-flex align-items-center">
+                    <span class="text-white me-3" id="navUsername"><i class="bi bi-person-circle"></i></span>
+                    <button class="btn btn-outline-light btn-sm" id="logoutBtn"><i class="bi bi-box-arrow-right"></i> Logout</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container py-4">
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h2><i class="bi bi-graph-up text-primary"></i> Sales Analytics</h2>
+                    <div class="btn-group">
+                        <button class="btn btn-outline-primary active" data-days="7">7 Days</button>
+                        <button class="btn btn-outline-primary" data-days="30">30 Days</button>
+                        <button class="btn btn-outline-primary" data-days="90">90 Days</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card stat-card revenue">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h6 class="text-muted mb-2">Total Revenue</h6>
+                                <div class="stat-value text-success" id="totalRevenue">$0.00</div>
+                            </div>
+                            <div class="align-self-center"><i class="bi bi-currency-dollar fs-1 text-success opacity-50"></i></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card stat-card orders">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h6 class="text-muted mb-2">Total Orders</h6>
+                                <div class="stat-value text-primary" id="totalOrders">0</div>
+                            </div>
+                            <div class="align-self-center"><i class="bi bi-bag fs-1 text-primary opacity-50"></i></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card stat-card customers">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h6 class="text-muted mb-2">Unique Customers</h6>
+                                <div class="stat-value text-warning" id="totalCustomers">0</div>
+                            </div>
+                            <div class="align-self-center"><i class="bi bi-people fs-1 text-warning opacity-50"></i></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card stat-card items">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h6 class="text-muted mb-2">Items Sold</h6>
+                                <div class="stat-value text-info" id="totalItems">0</div>
+                            </div>
+                            <div class="align-self-center"><i class="bi bi-box fs-1 text-info opacity-50"></i></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Average Order Value -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header"><i class="bi bi-calculator"></i> Average Order Value</div>
+                    <div class="card-body text-center">
+                        <h2 class="text-success" id="avgOrderValue">$0.00</h2>
+                        <p class="text-muted mb-0">Per order average</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header"><i class="bi bi-clock"></i> Peak Hour</div>
+                    <div class="card-body text-center">
+                        <h2 class="text-primary" id="peakHour">--:--</h2>
+                        <p class="text-muted mb-0">Most orders received</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Top Items -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header"><i class="bi bi-star"></i> Top Selling Items</div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Item</th>
+                                        <th>Category</th>
+                                        <th>Qty Sold</th>
+                                        <th>Revenue</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="topItemsBody">
+                                    <tr><td colspan="4" class="text-center text-muted">Loading...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Daily Breakdown -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span><i class="bi bi-calendar-week"></i> Daily Breakdown</span>
+                        <button class="btn btn-sm btn-outline-primary" id="refreshBtn"><i class="bi bi-arrow-clockwise"></i> Refresh</button>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Orders</th>
+                                        <th>Revenue</th>
+                                        <th>Avg Order</th>
+                                        <th>Items Sold</th>
+                                        <th>Customers</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="analyticsTableBody">
+                                    <tr><td colspan="6" class="text-center py-4"><div class="spinner-border text-primary"></div></td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div id="notificationToast" class="toast" role="alert">
+            <div class="toast-header">
+                <i class="bi bi-bell me-2"></i>
+                <strong class="me-auto" id="toastTitle">Notification</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body" id="toastMessage"></div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/api.js"></script>
+    <script>
+        let currentTruckId = null;
+        let currentDays = 30;
+
+        $(document).ready(function() {
+            const user = API.getUser();
+            if (!user || user.user_type !== 'owner') {
+                window.location.href = '/login';
+                return;
+            }
+            $('#navUsername').html('<i class="bi bi-person-circle"></i> ' + (user.first_name || 'Owner'));
+            
+            loadFoodTruck();
+            
+            $('.btn-group .btn').on('click', function() {
+                $('.btn-group .btn').removeClass('active');
+                $(this).addClass('active');
+                currentDays = $(this).data('days');
+                loadAnalytics();
+            });
+            
+            $('#refreshBtn').on('click', loadAnalytics);
+            $('#logoutBtn').on('click', () => API.logout());
+        });
+
+        async function loadFoodTruck() {
+            try {
+                const user = API.getUser();
+                // Get owner's food truck
+                const ownerResponse = await $.ajax({ 
+                    url: `/api/owners/user/${user.user_id}`, 
+                    method: 'GET' 
+                });
+                
+                if (ownerResponse.success && ownerResponse.data) {
+                    const ownerId = ownerResponse.data.owner_id;
+                    const response = await $.ajax({ 
+                        url: `/api/food-trucks?owner_id=${ownerId}`, 
+                        method: 'GET' 
+                    });
+                    
+                    if (response.success && response.data.length > 0) {
+                        currentTruckId = response.data[0].food_truck_id;
+                        loadAnalytics();
+                    } else {
+                        $('#analyticsTableBody').html('<tr><td colspan="6" class="text-center text-muted">No food truck found. <a href="/create-truck">Create one first</a>.</td></tr>');
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading truck:', error);
+            }
+        }
+
+        async function loadAnalytics() {
+            if (!currentTruckId) return;
+            
+            try {
+                // Load summary
+                const summaryResponse = await $.ajax({
+                    url: `/api/analytics/summary/${currentTruckId}?days=${currentDays}`,
+                    method: 'GET'
+                });
+                
+                if (summaryResponse.success && summaryResponse.data) {
+                    const s = summaryResponse.data;
+                    $('#totalRevenue').text('$' + parseFloat(s.total_revenue || 0).toFixed(2));
+                    $('#totalOrders').text(s.total_orders || 0);
+                    $('#totalCustomers').text(s.total_unique_customers || 0);
+                    $('#totalItems').text(s.total_items_sold || 0);
+                    $('#avgOrderValue').text('$' + parseFloat(s.avg_order_value || 0).toFixed(2));
+                }
+                
+                // Load daily data from real orders
+                const dailyResponse = await $.ajax({
+                    url: `/api/analytics/daily/${currentTruckId}?days=${currentDays}`,
+                    method: 'GET'
+                });
+                
+                if (dailyResponse.success) {
+                    renderDailyTable(dailyResponse.data);
+                }
+                
+                // Load peak hours
+                const peakResponse = await $.ajax({
+                    url: `/api/analytics/peak-hours/${currentTruckId}?days=${currentDays}`,
+                    method: 'GET'
+                });
+                
+                if (peakResponse.success && peakResponse.data.length > 0) {
+                    const peakHour = parseInt(peakResponse.data[0].hour);
+                    const ampm = peakHour >= 12 ? 'PM' : 'AM';
+                    const hour12 = peakHour % 12 || 12;
+                    $('#peakHour').text(`${hour12}:00 ${ampm}`);
+                }
+                
+                // Load top items
+                const topItemsResponse = await $.ajax({
+                    url: `/api/analytics/top-items/${currentTruckId}?days=${currentDays}&limit=5`,
+                    method: 'GET'
+                });
+                
+                if (topItemsResponse.success) {
+                    renderTopItems(topItemsResponse.data);
+                }
+            } catch (error) {
+                console.error('Error loading analytics:', error);
+                $('#analyticsTableBody').html('<tr><td colspan="6" class="text-center text-muted">No analytics data available</td></tr>');
+            }
+        }
+
+        function renderTopItems(data) {
+            if (!data || data.length === 0) {
+                $('#topItemsBody').html('<tr><td colspan="4" class="text-center text-muted">No sales data yet</td></tr>');
+                return;
+            }
+            
+            let html = '';
+            data.forEach((item, i) => {
+                html += `<tr>
+                    <td><span class="badge bg-primary me-2">${i + 1}</span>${item.name}</td>
+                    <td><span class="badge bg-secondary">${item.category || 'N/A'}</span></td>
+                    <td><strong>${item.quantity_sold}</strong></td>
+                    <td class="text-success">$${parseFloat(item.total_revenue || 0).toFixed(2)}</td>
+                </tr>`;
+            });
+            $('#topItemsBody').html(html);
+        }
+
+        function renderDailyTable(data) {
+            if (!data || data.length === 0) {
+                $('#analyticsTableBody').html('<tr><td colspan="6" class="text-center text-muted">No data for selected period</td></tr>');
+                return;
+            }
+            
+            let html = '';
+            data.forEach(row => {
+                html += `<tr>
+                    <td>${new Date(row.analytics_date).toLocaleDateString()}</td>
+                    <td>${row.total_orders || 0}</td>
+                    <td class="text-success">$${parseFloat(row.total_revenue || 0).toFixed(2)}</td>
+                    <td>$${parseFloat(row.avg_order_value || 0).toFixed(2)}</td>
+                    <td>${row.items_sold || 0}</td>
+                    <td>${row.unique_customers || 0}</td>
+                </tr>`;
+            });
+            $('#analyticsTableBody').html(html);
+            
+            if (data[0]?.peak_hour) {
+                $('#peakHour').text(data[0].peak_hour);
+            }
+        }
+    </script>
+</body>
+</html>

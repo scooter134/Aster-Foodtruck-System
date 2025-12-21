@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Workers - Food Truck System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="/css/style.css" rel="stylesheet">
+    <style>
+        .worker-card { transition: all 0.2s; border-left: 4px solid #0d6efd; }
+        .worker-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+        .worker-card.inactive { border-left-color: #dc3545; opacity: 0.7; }
+        .worker-avatar { width: 50px; height: 50px; border-radius: 50%; background: #e9ecef; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: #6c757d; }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/ownerDashboard"><i class="bi bi-truck"></i> Food Truck Owner</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item"><a class="nav-link" href="/ownerDashboard"><i class="bi bi-speedometer2"></i> Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/menuItems"><i class="bi bi-list-ul"></i> Menu Items</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/truckOrders"><i class="bi bi-receipt"></i> Orders</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/analytics"><i class="bi bi-graph-up"></i> Analytics</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/working-hours"><i class="bi bi-clock"></i> Hours</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="/workers"><i class="bi bi-people"></i> Workers</a></li>
+                </ul>
+                <div class="d-flex align-items-center">
+                    <span class="text-white me-3" id="navUsername"><i class="bi bi-person-circle"></i></span>
+                    <button class="btn btn-outline-light btn-sm" id="logoutBtn"><i class="bi bi-box-arrow-right"></i> Logout</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container py-4">
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h2><i class="bi bi-people text-primary"></i> Manage Workers</h2>
+                        <p class="text-muted mb-0">Add and manage staff for your food truck</p>
+                    </div>
+                    <div class="btn-group">
+                        <a href="/worker-dashboard" class="btn btn-outline-success" target="_blank">
+                            <i class="bi bi-display"></i> Worker Dashboard
+                        </a>
+                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addWorkerModal">
+                            <i class="bi bi-person-plus"></i> Add Worker
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="card bg-primary text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h6 class="mb-1">Total Workers</h6>
+                                <h3 class="mb-0" id="totalWorkers">0</h3>
+                            </div>
+                            <i class="bi bi-people fs-1 opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card bg-success text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h6 class="mb-1">Active</h6>
+                                <h3 class="mb-0" id="activeWorkers">0</h3>
+                            </div>
+                            <i class="bi bi-person-check fs-1 opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card bg-secondary text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h6 class="mb-1">Inactive</h6>
+                                <h3 class="mb-0" id="inactiveWorkers">0</h3>
+                            </div>
+                            <i class="bi bi-person-x fs-1 opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading State -->
+        <div id="loadingState" class="text-center py-5">
+            <div class="spinner-border text-primary"></div>
+            <p class="mt-2 text-muted">Loading workers...</p>
+        </div>
+
+        <!-- Workers List -->
+        <div class="row" id="workersGrid" style="display: none;"></div>
+
+        <!-- Empty State -->
+        <div id="emptyState" class="text-center py-5" style="display: none;">
+            <i class="bi bi-people" style="font-size: 4rem; color: #dee2e6;"></i>
+            <h5 class="mt-3">No Workers Yet</h5>
+            <p class="text-muted">Add workers to help manage your food truck</p>
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addWorkerModal">
+                <i class="bi bi-person-plus"></i> Add First Worker
+            </button>
+        </div>
+    </div>
+
+    <!-- Add/Edit Worker Modal -->
+    <div class="modal fade" id="addWorkerModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalTitle"><i class="bi bi-person-plus"></i> Add Worker</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="workerForm">
+                    <div class="modal-body">
+                        <input type="hidden" id="workerId">
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Email *</label>
+                            <input type="email" class="form-control" id="workerEmail" required placeholder="worker@example.com">
+                            <small class="text-muted">Worker will use this email to login</small>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="mb-3">
+                                    <label class="form-label">First Name *</label>
+                                    <input type="text" class="form-control" id="firstName" required placeholder="John">
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Last Name *</label>
+                                    <input type="text" class="form-control" id="lastName" required placeholder="Doe">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3" id="passwordGroup">
+                            <label class="form-label">Password *</label>
+                            <input type="password" class="form-control" id="workerPassword" placeholder="Min 6 characters">
+                            <small class="text-muted">Worker's initial password</small>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Phone</label>
+                            <input type="tel" class="form-control" id="phone" placeholder="+1234567890">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Role</label>
+                            <select class="form-select" id="workerRole">
+                                <option value="cashier">Cashier</option>
+                                <option value="cook">Cook</option>
+                                <option value="server">Server</option>
+                                <option value="manager">Manager</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="isActive" checked>
+                            <label class="form-check-label" for="isActive">Active worker</label>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary" id="saveBtn">
+                            <i class="bi bi-check-lg"></i> Save Worker
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal fade" id="deleteModal" tabindex="-1">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title"><i class="bi bi-exclamation-triangle"></i> Remove Worker</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Remove <strong id="deleteName"></strong> from your food truck?</p>
+                    <small class="text-muted">This will deactivate their account.</small>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Remove</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div id="notificationToast" class="toast" role="alert">
+            <div class="toast-header">
+                <i class="bi bi-bell me-2"></i>
+                <strong class="me-auto" id="toastTitle">Notification</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body" id="toastMessage"></div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/api.js"></script>
+    <script>
+        let currentTruckId = null;
+        let workersData = [];
+        let deleteWorkerId = null;
+        let editMode = false;
+
+        $(document).ready(function() {
+            const user = API.getUser();
+            if (!user || user.user_type !== 'owner') {
+                window.location.href = '/login';
+                return;
+            }
+            $('#navUsername').html('<i class="bi bi-person-circle"></i> ' + (user.first_name || 'Owner'));
+            
+            loadFoodTruck();
+            
+            $('#workerForm').on('submit', saveWorker);
+            $('#confirmDeleteBtn').on('click', deleteWorker);
+            $('#logoutBtn').on('click', () => API.logout());
+            
+            $('#addWorkerModal').on('show.bs.modal', function(e) {
+                if (!$(e.relatedTarget).data('id')) {
+                    editMode = false;
+                    $('#modalTitle').html('<i class="bi bi-person-plus"></i> Add Worker');
+                    $('#workerForm')[0].reset();
+                    $('#workerId').val('');
+                    $('#isActive').prop('checked', true);
+                    $('#passwordGroup').show();
+                    $('#workerPassword').prop('required', true);
+                }
+            });
+        });
+
+        async function loadFoodTruck() {
+            try {
+                const response = await $.ajax({ url: '/api/food-trucks', method: 'GET' });
+                if (response.success && response.data.length > 0) {
+                    currentTruckId = response.data[0].food_truck_id;
+                    loadWorkers();
+                }
+            } catch (error) {
+                console.error('Error loading truck:', error);
+            }
+        }
+
+        async function loadWorkers() {
+            try {
+                const response = await $.ajax({
+                    url: `/api/workers?food_truck_id=${currentTruckId}`,
+                    method: 'GET'
+                });
+                
+                $('#loadingState').hide();
+                
+                if (response.success && response.data.length > 0) {
+                    workersData = response.data;
+                    renderWorkers();
+                    updateStats();
+                    $('#workersGrid').show();
+                    $('#emptyState').hide();
+                } else {
+                    workersData = [];
+                    updateStats();
+                    $('#workersGrid').hide();
+                    $('#emptyState').show();
+                }
+            } catch (error) {
+                console.error('Error loading workers:', error);
+                $('#loadingState').hide();
+                $('#emptyState').show();
+            }
+        }
+
+        function updateStats() {
+            const total = workersData.length;
+            const active = workersData.filter(w => w.is_active).length;
+            const inactive = total - active;
+            
+            $('#totalWorkers').text(total);
+            $('#activeWorkers').text(active);
+            $('#inactiveWorkers').text(inactive);
+        }
+
+        function renderWorkers() {
+            let html = '';
+            workersData.forEach(worker => {
+                const initials = (worker.first_name?.[0] || '') + (worker.last_name?.[0] || '');
+                html += `
+                    <div class="col-md-6 col-lg-4 mb-3">
+                        <div class="card worker-card ${!worker.is_active ? 'inactive' : ''}">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="worker-avatar me-3">${initials.toUpperCase()}</div>
+                                    <div class="flex-grow-1">
+                                        <h6 class="mb-0">${worker.first_name} ${worker.last_name}</h6>
+                                        <small class="text-muted">${worker.email}</small>
+                                    </div>
+                                    <span class="badge ${worker.is_active ? 'bg-success' : 'bg-secondary'}">
+                                        ${worker.is_active ? 'Active' : 'Inactive'}
+                                    </span>
+                                </div>
+                                <div class="mb-2">
+                                    <span class="badge bg-info">${worker.role || 'Worker'}</span>
+                                    ${worker.phone ? `<small class="text-muted ms-2"><i class="bi bi-telephone"></i> ${worker.phone}</small>` : ''}
+                                </div>
+                                <div class="d-flex gap-2">
+                                    <button class="btn btn-sm btn-outline-primary flex-grow-1" onclick="editWorker(${worker.worker_id})">
+                                        <i class="bi bi-pencil"></i> Edit
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger" onclick="confirmDelete(${worker.worker_id}, '${worker.first_name} ${worker.last_name}')">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            $('#workersGrid').html(html);
+        }
+
+        function editWorker(id) {
+            const worker = workersData.find(w => w.worker_id === id);
+            if (!worker) return;
+            
+            editMode = true;
+            $('#workerId').val(worker.worker_id);
+            $('#workerEmail').val(worker.email);
+            $('#firstName').val(worker.first_name);
+            $('#lastName').val(worker.last_name);
+            $('#phone').val(worker.phone || '');
+            $('#workerRole').val(worker.role || 'cashier');
+            $('#isActive').prop('checked', worker.is_active);
+            $('#modalTitle').html('<i class="bi bi-pencil"></i> Edit Worker');
+            $('#passwordGroup').hide();
+            $('#workerPassword').prop('required', false);
+            
+            new bootstrap.Modal('#addWorkerModal').show();
+        }
+
+        async function saveWorker(e) {
+            e.preventDefault();
+            
+            const id = $('#workerId').val();
+            const data = {
+                food_truck_id: currentTruckId,
+                email: $('#workerEmail').val(),
+                first_name: $('#firstName').val(),
+                last_name: $('#lastName').val(),
+                phone: $('#phone').val() || null,
+                role: $('#workerRole').val(),
+                is_active: $('#isActive').prop('checked')
+            };
+            
+            if (!editMode) {
+                data.password = $('#workerPassword').val();
+                if (!data.password || data.password.length < 6) {
+                    showToast('Error', 'Password must be at least 6 characters', 'danger');
+                    return;
+                }
+            }
+            
+            try {
+                $('#saveBtn').prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span>');
+                
+                const response = await $.ajax({
+                    url: id ? `/api/workers/${id}` : '/api/workers',
+                    method: id ? 'PUT' : 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(data)
+                });
+                
+                if (response.success) {
+                    bootstrap.Modal.getInstance(document.getElementById('addWorkerModal')).hide();
+                    showToast('Success', id ? 'Worker updated' : 'Worker added', 'success');
+                    loadWorkers();
+                }
+            } catch (error) {
+                showToast('Error', error.responseJSON?.error || 'Failed to save worker', 'danger');
+            } finally {
+                $('#saveBtn').prop('disabled', false).html('<i class="bi bi-check-lg"></i> Save Worker');
+            }
+        }
+
+        function confirmDelete(id, name) {
+            deleteWorkerId = id;
+            $('#deleteName').text(name);
+            new bootstrap.Modal('#deleteModal').show();
+        }
+
+        async function deleteWorker() {
+            if (!deleteWorkerId) return;
+            
+            try {
+                const response = await $.ajax({
+                    url: `/api/workers/${deleteWorkerId}`,
+                    method: 'DELETE'
+                });
+                
+                if (response.success) {
+                    bootstrap.Modal.getInstance(document.getElementById('deleteModal')).hide();
+                    showToast('Removed', 'Worker removed from truck', 'info');
+                    loadWorkers();
+                }
+            } catch (error) {
+                showToast('Error', 'Failed to remove worker', 'danger');
+            }
+        }
+
+        function showToast(title, message, type) {
+            const header = $('#notificationToast .toast-header');
+            header.removeClass('bg-success bg-danger bg-info text-white');
+            if (type === 'success') header.addClass('bg-success text-white');
+            else if (type === 'danger') header.addClass('bg-danger text-white');
+            else header.addClass('bg-info text-white');
+            
+            $('#toastTitle').text(title);
+            $('#toastMessage').text(message);
+            new bootstrap.Toast(document.getElementById('notificationToast')).show();
+        }
+    </script>
+</body>
+</html>

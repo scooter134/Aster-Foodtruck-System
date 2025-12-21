@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Browse Trucks - Food Truck System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="/css/style.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="/customer/dashboard"><i class="bi bi-truck"></i> Food Truck System</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item"><a class="nav-link" href="/customer/dashboard"><i class="bi bi-house"></i> Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="/customer/browse-trucks"><i class="bi bi-shop"></i> Browse Trucks</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/customer/cart"><i class="bi bi-cart3"></i> Cart</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/customer/orders"><i class="bi bi-receipt"></i> My Orders</a></li>
+                </ul>
+                <div class="d-flex align-items-center">
+                    <span class="text-white me-3"><i class="bi bi-person-circle"></i> <span id="navUsername">{{username}}</span></span>
+                    <button class="btn btn-outline-light btn-sm" id="logoutBtn">
+                        <i class="bi bi-box-arrow-right"></i> Logout
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <div class="bg-light py-4 mb-4">
+        <div class="container">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-2">
+                    <li class="breadcrumb-item"><a href="/customer/dashboard">Home</a></li>
+                    <li class="breadcrumb-item active">Browse Trucks</li>
+                </ol>
+            </nav>
+            <h2 class="mb-0"><i class="bi bi-shop text-primary"></i> Browse Food Trucks</h2>
+            <p class="text-muted mb-0">Discover delicious food from local food trucks</p>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container pb-5">
+        <!-- Search and Filter Section -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="input-group">
+                    <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+                    <input type="text" class="form-control" id="searchTrucks" placeholder="Search food trucks...">
+                </div>
+            </div>
+            <div class="col-md-3 mt-2 mt-md-0">
+                <select class="form-select" id="cuisineFilter">
+                    <option value="">All Cuisines</option>
+                </select>
+            </div>
+            <div class="col-md-3 mt-2 mt-md-0">
+                <select class="form-select" id="statusFilter">
+                    <option value="">All Status</option>
+                    <option value="open">Open Only</option>
+                    <option value="closed">Closed Only</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Results Count -->
+        <div class="row mb-3">
+            <div class="col-12">
+                <span class="text-muted" id="trucksCount">0 trucks found</span>
+            </div>
+        </div>
+
+        <!-- Trucks Grid -->
+        <div class="row" id="trucksGrid">
+            <div class="col-12 text-center py-5">
+                <div class="spinner-border text-primary"></div>
+                <p class="mt-2 text-muted">Loading food trucks...</p>
+            </div>
+        </div>
+
+        <!-- No Trucks Message -->
+        <div id="noTrucksMessage" class="text-center py-5" style="display: none;">
+            <div class="empty-state">
+                <i class="bi bi-shop-window"></i>
+                <h5>No Food Trucks Available</h5>
+                <p class="text-muted">There are no food trucks available at the moment. Please check back later!</p>
+                <button class="btn btn-primary" id="refreshTrucksBtn">
+                    <i class="bi bi-arrow-clockwise"></i> Refresh
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div id="notificationToast" class="toast" role="alert">
+            <div class="toast-header">
+                <i class="bi bi-bell me-2"></i>
+                <strong class="me-auto" id="toastTitle">Notification</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body" id="toastMessage"></div>
+        </div>
+    </div>
+
+    <!-- Hidden User ID -->
+    <input type="hidden" id="userId" value="{{userId}}">
+    <input type="hidden" id="username" value="{{username}}">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/api.js"></script>
+    <script src="/js/browse-trucks.js"></script>
+</body>
+</html>

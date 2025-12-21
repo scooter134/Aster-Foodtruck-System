@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Food Truck - Food Truck System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="/css/style.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="/ownerDashboard"><i class="bi bi-truck"></i> Food Truck System</a>
+            <div class="d-flex align-items-center">
+                <button class="btn btn-outline-light btn-sm" id="logoutBtn"><i class="bi bi-box-arrow-right"></i> Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-6">
+                <div class="card shadow">
+                    <div class="card-header bg-primary text-white">
+                        <h4 class="mb-0"><i class="bi bi-truck"></i> Create Your Food Truck</h4>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-muted mb-4">Set up your food truck to start receiving orders from customers.</p>
+                        
+                        <form id="createTruckForm">
+                            <div id="formError" class="alert alert-danger d-none"></div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Food Truck Name *</label>
+                                <input type="text" class="form-control" id="truckName" required placeholder="e.g., Tasty Tacos">
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Cuisine Type *</label>
+                                <select class="form-select" id="cuisineType" required>
+                                    <option value="">Select cuisine type...</option>
+                                    <option value="American">American</option>
+                                    <option value="Mexican">Mexican</option>
+                                    <option value="Italian">Italian</option>
+                                    <option value="Asian">Asian</option>
+                                    <option value="Indian">Indian</option>
+                                    <option value="Mediterranean">Mediterranean</option>
+                                    <option value="BBQ">BBQ</option>
+                                    <option value="Seafood">Seafood</option>
+                                    <option value="Vegetarian">Vegetarian</option>
+                                    <option value="Desserts">Desserts</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Description</label>
+                                <textarea class="form-control" id="description" rows="3" placeholder="Tell customers about your food truck..."></textarea>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">Phone</label>
+                                        <input type="tel" class="form-control" id="phone" placeholder="+1234567890">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">Email</label>
+                                        <input type="email" class="form-control" id="email" placeholder="contact@foodtruck.com">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">License Number</label>
+                                <input type="text" class="form-control" id="licenseNumber" placeholder="Business license number">
+                            </div>
+                            
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">Logo URL</label>
+                                <input type="url" class="form-control" id="imageUrl" placeholder="https://example.com/logo.png">
+                                <small class="text-muted">Enter a URL to your food truck logo image</small>
+                            </div>
+                            
+                            <div class="form-check form-switch mb-4">
+                                <input class="form-check-input" type="checkbox" id="isActive" checked>
+                                <label class="form-check-label" for="isActive">
+                                    <strong>Start accepting orders immediately</strong>
+                                </label>
+                            </div>
+                            
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-primary btn-lg" id="submitBtn">
+                                    <i class="bi bi-check-circle"></i> Create Food Truck
+                                </button>
+                                <a href="/ownerDashboard" class="btn btn-outline-secondary">Cancel</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div id="notificationToast" class="toast" role="alert">
+            <div class="toast-header">
+                <i class="bi bi-bell me-2"></i>
+                <strong class="me-auto" id="toastTitle">Notification</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body" id="toastMessage"></div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/api.js"></script>
+    <script>
+        let ownerId = null;
+        
+        $(document).ready(function() {
+            const user = API.getUser();
+            if (!user || user.user_type !== 'owner') {
+                window.location.href = '/login';
+                return;
+            }
+            
+            // Get owner ID
+            $.ajax({
+                url: '/api/owners/user/' + user.user_id,
+                method: 'GET',
+                success: function(response) {
+                    if (response.success && response.data) {
+                        ownerId = response.data.owner_id;
+                    } else {
+                        showError('Owner profile not found. Please contact support.');
+                    }
+                },
+                error: function() {
+                    showError('Failed to load owner profile.');
+                }
+            });
+            
+            $('#createTruckForm').on('submit', createTruck);
+            $('#logoutBtn').on('click', () => API.logout());
+        });
+        
+        async function createTruck(e) {
+            e.preventDefault();
+            
+            if (!ownerId) {
+                showError('Owner ID not found. Please refresh the page.');
+                return;
+            }
+            
+            const data = {
+                owner_id: ownerId,
+                name: $('#truckName').val().trim(),
+                cuisine_type: $('#cuisineType').val(),
+                description: $('#description').val().trim() || null,
+                phone: $('#phone').val().trim() || null,
+                email: $('#email').val().trim() || null,
+                license_number: $('#licenseNumber').val().trim() || null,
+                image_url: $('#imageUrl').val().trim() || null,
+                is_active: $('#isActive').prop('checked')
+            };
+            
+            if (!data.name || !data.cuisine_type) {
+                showError('Please fill in all required fields.');
+                return;
+            }
+            
+            $('#submitBtn').prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span> Creating...');
+            $('#formError').addClass('d-none');
+            
+            try {
+                const response = await $.ajax({
+                    url: '/api/food-trucks',
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(data)
+                });
+                
+                if (response.success) {
+                    showToast('Success!', 'Food truck created successfully!', 'success');
+                    setTimeout(() => {
+                        window.location.href = '/ownerDashboard';
+                    }, 1500);
+                } else {
+                    showError(response.error || 'Failed to create food truck.');
+                }
+            } catch (error) {
+                showError(error.responseJSON?.error || 'Failed to create food truck.');
+            } finally {
+                $('#submitBtn').prop('disabled', false).html('<i class="bi bi-check-circle"></i> Create Food Truck');
+            }
+        }
+        
+        function showError(message) {
+            $('#formError').text(message).removeClass('d-none');
+        }
+        
+        function showToast(title, message, type) {
+            const header = $('#notificationToast .toast-header');
+            header.removeClass('bg-success bg-danger text-white');
+            if (type === 'success') header.addClass('bg-success text-white');
+            $('#toastTitle').text(title);
+            $('#toastMessage').text(message);
+            new bootstrap.Toast(document.getElementById('notificationToast')).show();
+        }
+    </script>
+</body>
+</html>
