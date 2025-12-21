@@ -16,11 +16,12 @@ Views are **HJS (Hogan.js)** templates rendered server-side by Express. Each vie
 ### Customer Views
 | File | Route | Description |
 |------|-------|-------------|
-| `index.hjs` | `/` | Home page - food truck listings |
-| `menu.hjs` | `/menu/:id` | Food truck menu with add to cart |
+| `customerHomepage.hjs` | `/` | Home page with quick actions |
+| `browse-trucks.hjs` | `/browse-trucks` | Browse all food trucks |
+| `customer-menu.hjs` | `/menu/:id` | Food truck menu with add to cart |
 | `cart.hjs` | `/cart` | Shopping cart, time slot selection, checkout |
-| `orders.hjs` | `/orders` | Customer order history |
-| `order-details.hjs` | `/order/:id` | Single order details |
+| `customer-orders.hjs` | `/orders` | Customer order history |
+| `myOrders.hjs` | `/my-orders` | Alternative order history view |
 
 ### Owner Views
 | File | Route | Description |
